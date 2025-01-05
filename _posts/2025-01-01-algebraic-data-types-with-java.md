@@ -29,16 +29,18 @@ ADTs are prevalent in functional programming due to their ability to enhance cod
 
 ### Readable
 ADTs make code more readable by explicitly defining the structure and possible values of complex data. This makes it easier to understand and reason about the code, leading to improved maintainability.
+
 ### Enforce Constraints
 ADTs use the type system to enforce constraints on the data. The compiler can detect errors at compile time, preventing runtime issues that might arise from invalid data structures or operations.
+
 ### Remove boilerplate
 Compared to using classes or structs alone, ADTs can often reduce the amount of boilerplate code needed to define and manipulate complex data. For example, pattern matching with ADTs often eliminates the need for lengthy if-else chains or switch statements.
 
 ADTs can accurately model data that has a limited set of possible states or variations. This is particularly useful for representing things like:
 
-- State machines: Each state can be a variant of an ADT.
-- Abstract Syntax Trees (ASTs): Used in compilers and interpreters to represent the structure of code.
-- Error Handling: An ADT can represent either a successful result or a specific error.
+- `State machines`: Each state can be a variant of an ADT.
+- `Abstract Syntax Trees (ASTs)`: Used in compilers and interpreters to represent the structure of code.
+- `Error Handling`: An ADT can represent either a successful result or a specific error.
 
 In essence, ADTs help by allowing us to model the application domain by defining custom data types that are tailor-made for a specific application domain and enforced by the type system. 
 They provide a powerful tool for tackling complexity in software engineering.
@@ -47,6 +49,7 @@ They provide a powerful tool for tackling complexity in software engineering.
 ## Why Algebra?
 
 In algebraic data types (ADTs), algebra refers to the operations used to combine types to create ADTs, and the relationships between those operations and the types:
+
 - `Objects`: The types that make up the algebra
 - `Operations`: The ways to combine types to create new types
 - `Laws`: The relationships between the types and the operations
@@ -58,6 +61,7 @@ In ADTs the algebra consists of just two operators '+' and 'x'
 
 
 These represent a combination of data, where a type holds values of several other types simultaneously. 
+
   + Think of it as an "AND" relationship.
   + A Point might be a product type consisting of an x coordinate and a y coordinate.
   + It defines values
@@ -75,6 +79,7 @@ In Set theory this is the cartesian product
 
 ## Sum
 These represent a choice between different types, where a value can be one of several possible types, but only one at a time. 
+
  + Think of it as  an "or" relationship. 
  + A Shape might be a sum type, as it could be a Circle or a Square or a Triangle.
  + Defines variants
@@ -93,21 +98,25 @@ We can define a Status as a disjunction, the relation of three distinct alternat
 ``` 
     Under Review | Accepted | Rejected 
 ```
+
 ```
     Status + Boolean 
 ```
+
 ```
     3 + 2 = 5  
 ```
 
 
 
-We can further combine Product and Sum as they follow the same distributive law of numerical algebra
+We can further combine Product and Sum as they follow the same distributive law of numerical algebra.
+
 ```
 (a * b + a * c) <=> a * (b +c)
 ```
 
 We could define a DNS Record as a Sum Type
+
 ~~~ haskell
 DnsRecord(
      AValue(ttl, name, ipv4)
@@ -116,7 +125,9 @@ DnsRecord(
    | TxtValue(ttl, name, name)
 )
 ~~~
+
 But we could also refactor to a Product of Produce and Sums
+
 ~~~ haskell
 DnsRecord(ttl, name,
      AValue(ipv4)
@@ -129,11 +140,14 @@ DnsRecord(ttl, name,
 At the type level we can change ordering in using the same commutative law we would in algebra
 
 Commutativity
+
 ~~~
 (a * b) <=> (b * a)
 (a + b) <=> (b + a)
 ~~~
+
 Associativity
+
 ~~~
 (a + b) + c <=> a + (b + c)
 (a * b) * c <=> a * (b * c)
@@ -149,6 +163,7 @@ Let's take a quick tour of how ADTs (or their approximations) have been handled 
 
 - `C`: C lacks built-in support for ADTs but can simulate by using structs for product types and unions (combined with an enum for type tracking) for a rudimentary form of sum types.
   The tagged union (also called a disjoint union) is a data structure used to hold a value that can take on several different, but fixed types. Only one of the types can be in use at any one time, and a tag field explicitly indicates which one is in use. Here the tag is a value that indicates the variant of the enum stored in the union.  However, unions are notoriously unsafe, as they don't enforce type checking at compile time.
+
     ~~~ c
       union vals {
         char ch;
@@ -160,14 +175,17 @@ Let's take a quick tour of how ADTs (or their approximations) have been handled 
         vals val;
       };
     ~~~
+  
 - `Haskell`: Haskell a functional language elegantly expresses ADTs with its data keyword. Haskell's type system is specifically designed to support the creation and manipulation of ADTs.
 
    ~~~ haskell
   data Shape = Circle Float | Rectangle Float Float
    ~~~
+  
   This defines Shape as a sum type that can be either a Circle with a radius (Float) or a Rectangle with width and height (Float).
 
 - `Scala`: Scala uses case classes for product types and sealed traits with case classes/objects for sum types. This provides a robust and type-safe way to define ADTs.
+
   ~~~ scala
   sealed trait Shape
     case class Circle(radius: Double) extends Shape
@@ -198,6 +216,7 @@ This is particularly useful for general domain modeling with type safety.
 
 
 ### Why not just use enums?
+
 ~~~ java
 enum Task = {
   NotStarted,
@@ -213,6 +232,7 @@ sealed interface TaskStatus{
   record Cancelled(...) implements TaskStatus
 }
 ~~~
+
 It is possible to associate data with an enum constant, such as the mass and radius of the planet
 
 ~~~ java 
@@ -245,6 +265,7 @@ We trade some future flexibility for an exhaustive list of subtypes that allows 
 
 
 ### Advantages over the Visitor Pattern
+
 Traditionally, Java developers used the Visitor pattern to handle different types within a hierarchy. However, this approach has several drawbacks that we will see when we compare using a Sum type with pattern matching to the same effect using the Visitor pattern:
 
 ### Using Visitor Pattern
@@ -266,16 +287,16 @@ Rectangle with width: 6.00 , height: 10.00, area: 60.00, perimeter: 32.00
 Pentagon with side: 11.20, area: 215.82, perimeter: 56.00
 ~~~
 
-Explanation:
+#### Explanation:
 
-- ShapeVisitor<T> Interface:
+1. ShapeVisitor<T> Interface:
     + Defines the visit methods for each shape type.
     + The generic type T allows visitors to return different types of results.
 
-- accept Method in Shape:
+2. accept Method in Shape:
     + Each shape class implements the accept method, which takes a ShapeVisitor and calls the appropriate visit method on the visitor.
 
-- Concrete Visitors:
+3. Concrete Visitors:
     + AreaCalculator: Calculates the area of a shape.
     + PerimeterCalculator: Calculates the perimeter of a shape.
     + InfoVisitor: Generates a string with information about the shape (including area and perimeter).
@@ -303,7 +324,7 @@ Rectangle with width: 6.00 , height: 10.00, area: 60.00, perimeter: 32.00
 Pentagon with side: 11.20, area: 215.82, perimeter: 56.00
 ~~~
 
-Explanation:
+#### Explanation:
 1. Shape is a sealed interface, allowing only permitting Circle, Rectangle, Triangle and Pentagon to implement it.
 2. Circle and Rectangle Triangle and Pentagon are records, concisely defining the data they hold.
 3. Shapes demonstrates using pattern matching with switch to handle different Shape types and perform operations like calculating area, perimeter or scaling. The compiler ensures that all possible Shape types are covered in the switch.
@@ -313,7 +334,9 @@ Explanation:
 ### Compare with the Visitor Pattern approach 
 
 - `Verbosity`: The Visitor pattern requires a lot of boilerplate code, with separate visitor interfaces and classes for each operation.
+
 - `Openness to Extension`: Adding a new type to the hierarchy requires modifying the visitor interface and all its implementations, violating the Open/Closed Principle.
+
 - `Lack of Exhaustiveness Checking`: The compiler cannot guarantee that all possible types are handled, leading to potential runtime errors.
 
 References:
