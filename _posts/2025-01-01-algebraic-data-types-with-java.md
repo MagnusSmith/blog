@@ -1,13 +1,19 @@
+---
 title: Algebraic Data Types with Java
 date: 2025-01-01 00:00:00 Z
 categories:
 - Tech
-  tags:
+tags:
 - Java
-  author: magnussmith
-  summary: In this post I explore the power of Algebraic Data Types in Java. 
-  image: magnussmith/assets/java.jpg
+author: magnussmith
+summary: In this post I explore the power of Algebraic Data Types in Java. 
+image: magnussmith/assets/java.jpg
 ---
+<style type="text/css">
+  .gist {width:500px !important;}
+  .gist-file
+  .gist-data {max-height: 500px;max-width: 500px;}
+</style>
 
 ## Introduction
 
@@ -83,11 +89,16 @@ An important property of ADTs is that they can be sealed or closed. That means t
 
 We can define a Status as a disjunction, the relation of three distinct alternatives 
 
-``` Under Review | Accepted | Rejected ``` 
 
-``` Status + Boolean ```
-
-``` 3 + 2 = 5 ```
+``` 
+    Under Review | Accepted | Rejected 
+```
+```
+    Status + Boolean 
+```
+```
+    3 + 2 = 5  
+```
 
 
 
@@ -97,35 +108,36 @@ We can further combine Product and Sum as they follow the same distributive law 
 ```
 
 We could define a DNS Record as a Sum Type
-``` 
+~~~ haskell
 DnsRecord(
      AValue(ttl, name, ipv4)
    | AaaaValue(ttl, name, ipv6)
    | CnameValue(ttl, name, alias)
    | TxtValue(ttl, name, name)
 )
-```
+~~~
 But we could also refactor to a Product of Produce and Sums
-```
+~~~ haskell
 DnsRecord(ttl, name,
      AValue(ipv4)
    | AaaaValue(ipv6)
    | CnameValue(alias)
    | TxtValue(value)
 )
-
-```
+~~~
 
 At the type level we can change ordering in using the same commutative law we would in algebra
-```
+
+Commutativity
+~~~
 (a * b) <=> (b * a)
 (a + b) <=> (b + a)
-```
-similar with associativity
-```
+~~~
+Associativity
+~~~
 (a + b) + c <=> a + (b + c)
 (a * b) * c <=> a * (b * c)
-```
+~~~
 
 
 
@@ -135,34 +147,34 @@ The concept of ADTs traces back to the early days of functional programming lang
 
 Let's take a quick tour of how ADTs (or their approximations) have been handled in different languages:
 
-  - `C`: C lacks built-in support for ADTs but can simulate by using structs for product types and unions (combined with an enum for type tracking) for a rudimentary form of sum types.
-    The tagged union (also called a disjoint union) is a data structure used to hold a value that can take on several different, but fixed types. Only one of the types can be in use at any one time, and a tag field explicitly indicates which one is in use. Here the tag is a value that indicates the variant of the enum stored in the union.  However, unions are notoriously unsafe, as they don't enforce type checking at compile time.
-      ~~~ c
-        union vals {
-          char ch;
-          int nt;
-        };
+- `C`: C lacks built-in support for ADTs but can simulate by using structs for product types and unions (combined with an enum for type tracking) for a rudimentary form of sum types.
+  The tagged union (also called a disjoint union) is a data structure used to hold a value that can take on several different, but fixed types. Only one of the types can be in use at any one time, and a tag field explicitly indicates which one is in use. Here the tag is a value that indicates the variant of the enum stored in the union.  However, unions are notoriously unsafe, as they don't enforce type checking at compile time.
+    ~~~ c
+      union vals {
+        char ch;
+        int nt;
+      };
     
-        struct tagUnion {
-          char tag;
-          vals val;
-        };
-      ~~~
-  - `Haskell`: Haskell a functional language elegantly expresses ADTs with its data keyword. Haskell's type system is specifically designed to support the creation and manipulation of ADTs.
-
-     ~~~ haskell
-    data Shape = Circle Float | Rectangle Float Float
-     ~~~
-    This defines Shape as a sum type that can be either a Circle with a radius (Float) or a Rectangle with width and height (Float).
-
-  - `Scala`: Scala uses case classes for product types and sealed traits with case classes/objects for sum types. This provides a robust and type-safe way to define ADTs.
-    ~~~ scala
-    sealed trait Shape
-      case class Circle(radius: Double) extends Shape
-      case class Rectangle(width: Double, height: Double) extends Shape
+      struct tagUnion {
+        char tag;
+        vals val;
+      };
     ~~~
+- `Haskell`: Haskell a functional language elegantly expresses ADTs with its data keyword. Haskell's type system is specifically designed to support the creation and manipulation of ADTs.
 
-  - `Java` (Pre-Java 17): Historically, Java relied on class hierarchies and the Visitor pattern to mimic sum types. This approach was verbose, requiring a lot of boilerplate code and was prone to errors if not carefully implemented. Product types were typically represented by classes with member variables.
+   ~~~ haskell
+  data Shape = Circle Float | Rectangle Float Float
+   ~~~
+  This defines Shape as a sum type that can be either a Circle with a radius (Float) or a Rectangle with width and height (Float).
+
+- `Scala`: Scala uses case classes for product types and sealed traits with case classes/objects for sum types. This provides a robust and type-safe way to define ADTs.
+  ~~~ scala
+  sealed trait Shape
+    case class Circle(radius: Double) extends Shape
+    case class Rectangle(width: Double, height: Double) extends Shape
+  ~~~
+
+- `Java` (Pre-Java 17): Historically, Java relied on class hierarchies and the Visitor pattern to mimic sum types. This approach was verbose, requiring a lot of boilerplate code and was prone to errors if not carefully implemented. Product types were typically represented by classes with member variables.
 
 
 
@@ -240,7 +252,7 @@ Traditionally, Java developers used the Visitor pattern to handle different type
 <script src="https://gist.github.com/MagnusSmith/1299a2540158de978e7b66a2c1029f87.js"></script>
 
 
-```jshelllanguage
+~~~jshelllanguage
 Shapes:
 Circle with radius: 5.00, area: 78.54, perimeter: 31.42
 Triangle with sides: 3.00, 3.00, 3.00, area: 3.90, perimeter: 9.00
@@ -252,7 +264,7 @@ Circle with radius: 10.00, area: 314.16, perimeter: 62.83
 Triangle with sides: 6.00, 6.00, 6.00, area: 15.59, perimeter: 18.00
 Rectangle with width: 6.00 , height: 10.00, area: 60.00, perimeter: 32.00
 Pentagon with side: 11.20, area: 215.82, perimeter: 56.00
-```
+~~~
 
 Explanation:
 
@@ -277,7 +289,7 @@ Explanation:
 
 Output:
 
-```jshelllanguage
+~~~jshelllanguage
 Shapes: [Circle[radius=5.0], Triangle[side1=3.0, side2=3.0, side3=3.0], Rectangle[width=3.0, height=5.0], Pentagon[side=5.6]]
 Circle with radius: 5.00, area: 78.54, perimeter: 31.42
 Triangle with sides: 3.00, 3.00, 3.00, area: 3.90, perimeter: 9.00
@@ -289,7 +301,7 @@ Circle with radius: 10.00, area: 314.16, perimeter: 62.83
 Triangle with sides: 6.00, 6.00, 6.00, area: 15.59, perimeter: 18.00
 Rectangle with width: 6.00 , height: 10.00, area: 60.00, perimeter: 32.00
 Pentagon with side: 11.20, area: 215.82, perimeter: 56.00
-```
+~~~
 
 Explanation:
 1. Shape is a sealed interface, allowing only permitting Circle, Rectangle, Triangle and Pentagon to implement it.
