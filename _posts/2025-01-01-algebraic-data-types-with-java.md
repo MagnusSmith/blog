@@ -15,107 +15,166 @@ image: magnussmith/assets/java.jpg
   .gist-data {max-height: 500px;max-width: 500px;}
 </style>
 
-## Introduction
+# Introduction
+
+## Domain Modeling
+
+When we develop an application, we frequently need to model some aspects of the business to describe and solve a business problem. We do this by creating a conceptual representation of the real-world problem that we are trying to solve. This allows us to understand the "domain" where our software operates.
+
+Think of it like creating a blueprint before constructing a building. You identify the key elements, their relationships, and how they interact. This blueprint guides the software design and ensures it accurately reflects the real-world problem.
+
+Essentially, Domain Modeling works in four stages:
+
+1. **Identify Key Concepts:** Start by identifying the important concepts, entities, and relationships within the domain.
+2. **Create a Model:** Represent these concepts and their relationships using a model such as a class diagram.
+3. **Define Attributes and Behavior:** For each concept, you define its attributes (properties) and behavior (actions).
+4. **Refine the Model:** Now iteratively refine the model based on feedback, further analysis, and discussions with domain experts.
+
+### Relationship to Types and Objects in software:
+
+Domain modeling is closely tied to the concepts of types and objects in object-oriented programming:
+
+* **Types:** The concepts in the domain model often translate directly into types (classes) in our code. For example, the "Book" concept might become a `Book` class.
+* **Objects:** Instances of these types represent specific objects in the domain. Each `Book` object would represent a particular book in the library.
+* **Attributes:** Attributes in the domain model become properties (fields) of the class.
+* **Behavior:** The behavior defined in the domain model is implemented as methods in the class.
+
+### Example:
+
+Imagine you're building an e-commerce system. Your domain model might include concepts like "Customer," "Product," "Order," and "Payment." These would translate into classes in your code. Each customer would be represented by a `Customer` object, each product by a `Product` object, and so on.
+
+### Relationship to an Algebra
+
+The relationship between a domain model and an algebra might seem abstract at first, but it's a powerful concept with practical implications in software design, especially when dealing with complex systems.
+
+#### Domain Model as a Foundation:
+
+* **Types as Sets:** In the domain model, each concept (e.g., "Customer," "Product," "Order") can be thought of as a set of possible values. For instance, "Customer" represents the set of all possible customers.
+* **Relationships as Functions:** Relationships between concepts can be modeled as functions. For example, an "Order" might have a function `getCustomer()` that maps an order to its corresponding customer.
+
+#### Algebraic Structures:
+
+* **Operations:** An algebra defines operations on these sets. In an e-commerce example, we might have operations like "add product to order," "calculate total price," or "apply discount."
+* **Laws and Properties:** These operations adhere to certain laws and properties (like associativity, commutativity, etc.). These laws reflect the business rules and constraints of your domain.
+
+#### Connecting the Pieces:
+
+* **Domain Model Informs the Algebra:** The domain model provides the basis for defining the sets and operations in the algebra. It ensures that the algebra accurately reflects our real-world problem.
+* **Algebra Provides Structure:** The algebraic structure helps us reason about the behavior of your system and ensures consistency. For example, the "add product to order" operation might need to be associative (the order in which you add products shouldn't matter).
+* **Implementation:** In code, we implement the algebra using classes, methods, and data structures. The algebraic laws guide the implementation and help you avoid inconsistencies.
+
+### Benefits of this Approach:
+
+* **Rigor and Precision:** Using an algebraic approach brings rigor and precision to your domain model. It helps you clearly define the behavior of your system.
+* **Testability:** Algebraic laws can be used to create comprehensive test cases, ensuring that your implementation adheres to the domain rules.
+* **Maintainability:** A well-defined algebra makes your code more modular and easier to maintain. Changes in the domain can be reflected by modifying the algebra and its implementation.
+
+### Example:
+
+Consider a banking system. Your domain model might include concepts like "Account" and "Transaction." We could define an algebra with operations like "deposit," "withdraw," and "transfer." These operations would need to satisfy certain laws, such as:
+
+* **Consistency:** `withdraw(account, amount)` should only succeed if the account has sufficient funds.
+* **Associativity:** Multiple deposits or withdrawals should result in the same final balance regardless of the order.
+
+By implementing these algebraic laws in our code, we ensure that the banking system behaves correctly and consistently.
+
+
+
+
+## Algebraic Data Types (ADTs)
+
+Algebraic Data Types (ADTs) are a way to structure data in functional programming languages. They provide a mechanism to create composite data types by combining other simpler types. ADTs allow developers to model complex data structures using simpler building blocks, much like building with LEGOs. Think of them as custom, compound data types you design for your specific needs.
+
+ADTs are prevalent in functional programming due to their ability to enhance code safety, readability, and maintainability in a structured and type-safe manner.
+
+### Why Do We Need ADTs? What Problems Do They Solve?
+
+### Readability
+
+ADTs make code more readable by explicitly defining the structure and possible values of complex data. This makes it easier to understand and reason about the code, improving maintainability.
+
+### Constraint Enforcement
+
+ADTs leverage the type system to enforce constraints on data. The compiler can detect errors at compile time, preventing runtime issues that might arise from invalid data structures or operations.
+
+### Boilerplate Reduction
+
+Compared to using classes or structs alone, ADTs can often reduce the amount of boilerplate code needed to define and manipulate complex data. For example, pattern matching with ADTs often eliminates the need for lengthy `if-else` chains or `switch` statements.
+
+ADTs accurately model data that has a limited set of possible states or variations. This is particularly useful for representing:
+
+-   **State machines:** Each state can be a variant of an ADT.
+-   **Abstract Syntax Trees (ASTs):** Used in compilers and interpreters to represent the structure of code.
+-   **Error Handling:** An ADT can represent either a successful result or a specific error.
+
+In essence, ADTs help us model the application domain by defining custom data types that are tailor-made for a specific application and enforced by the type system. They provide a powerful tool for tackling complexity in software engineering.
+
+### Why "Algebraic"?
+
+In the context of Algebraic Data Types (ADTs), "algebra" refers to the operations used to combine types and the relationships between those operations and the types:
+
+-   **Objects:** The types that make up the algebra.
+-   **Operations:** The ways to combine types to create new types.
+-   **Laws:** The relationships between the types and the operations.
+
+In ADTs, the algebra consists of two primary operators: 'x' (product) and '+' (sum).
+
+## Product Types
+
+Product types represent a combination of data where a type holds values of several other types simultaneously.
+
+-   Think of it as an "AND" relationship.
+-   A `Point` might be a product type consisting of an `x` coordinate AND a `y` coordinate.
+-   It defines values.
+-   Logical AND operator.
+-   Product types bundle two or more arbitrary types together such that `T = A AND B AND C`.
+-   The product is the Cartesian product of all their components.
+
+In code, we see this as tuples, POJOs, or records. In set theory, this is the Cartesian product.
+
+
 
  Building modern applications means managing complexity.   For years, Java developers have grappled with modelling representations of complex data and relationships in a clean, maintainable way.  More traditional Object-Oriented programming techniques provide many tools, but sometimes, it can feel that we are forcing data into structures that don't quite fit.
  Algebraic Data Types (ADTs), a powerful concept from functional programming that's making waves in the Java world, offering an elegant solution in the programmers arsenal.
 
-## What are Algebraic Data Types (ADT)?
-
-Algebraic data types (ADTs) are a way to structure data in functional programming languages. They define a mechanism to create composite data types by combining other simpler types. They allow developers to model complex data structures using simpler building blocks, much like building with LEGOs.  Think of them as custom, compound data types you design for your specific needs.
-ADTs are prevalent in functional programming due to their ability to enhance code safety, readability, and maintainability in a structured and type-safe manner.
-
-## Why do we need them and what kind of problems to they help solve?
-
-### Readable
-ADTs make code more readable by explicitly defining the structure and possible values of complex data. This makes it easier to understand and reason about the code, leading to improved maintainability.
-
-### Enforce Constraints
-ADTs use the type system to enforce constraints on the data. The compiler can detect errors at compile time, preventing runtime issues that might arise from invalid data structures or operations.
-
-### Remove boilerplate
-Compared to using classes or structs alone, ADTs can often reduce the amount of boilerplate code needed to define and manipulate complex data. For example, pattern matching with ADTs often eliminates the need for lengthy if-else chains or switch statements.
-
-ADTs can accurately model data that has a limited set of possible states or variations. This is particularly useful for representing things like:
-
-- `State machines`: Each state can be a variant of an ADT.
-- `Abstract Syntax Trees (ASTs)`: Used in compilers and interpreters to represent the structure of code.
-- `Error Handling`: An ADT can represent either a successful result or a specific error.
-
-In essence, ADTs help by allowing us to model the application domain by defining custom data types that are tailor-made for a specific application domain and enforced by the type system. 
-They provide a powerful tool for tackling complexity in software engineering.
 
 
-## Why Algebra?
+`(Bool * Bool)`
 
-In algebraic data types (ADTs), algebra refers to the operations used to combine types to create ADTs, and the relationships between those operations and the types:
+`2 * 2 = 4 `
 
-- `Objects`: The types that make up the algebra
-- `Operations`: The ways to combine types to create new types
-- `Laws`: The relationships between the types and the operations
+## Sum Types
 
+Sum types represent a choice between different types, where a value can be one of several possible types, but only one at a time.
 
-In ADTs the algebra consists of just two operators '+' and 'x'   
+-   Think of it as an "OR" relationship.
+-   A `Shape` might be a sum type, as it could be a `Circle` OR a `Square` OR a `Triangle`.
+-   Defines variants.
+-   Logical OR operator.
+-   Sum types are built with the '+' operator and combine types with OR, as in `T = A OR B OR C`.
+-   The sum is the union of the value sets of the alternatives.
 
-## Product
+Traditionally, sum types are more common in functional languages like Haskell (as data types) or Scala (as sealed traits of case classes). Java introduced a version with sealed interfaces of records in Java 17. A very simple version in Java is an `enum` type, though enums cannot have additional data associated with them once instantiated.
 
+An important property of ADTs is that they can be sealed or closed. This means that their definition contains all possible cases, and no further cases can exist. This allows the compiler to exhaustively verify all alternatives.
 
-These represent a combination of data, where a type holds values of several other types simultaneously. 
-
-  + Think of it as an "AND" relationship.
-  + A Point might be a product type consisting of an x coordinate and a y coordinate.
-  + It defines values
-  + Logical AND operator
-  + Product types bundle two or more arbitrary types together such that T=A and B and C.
-  + The product is the cartesian product of all their components
-
-In code, we may see this as Tuples, POJOs or Records.
-In Set theory this is the cartesian product
-
-``` (Bool * Bool) ```
-
-``` 2 * 2 = 4 ```
+We can define a `Status` as a disjunction, the relation of three distinct alternatives:
 
 
-## Sum
-These represent a choice between different types, where a value can be one of several possible types, but only one at a time. 
+` Under Review | Accepted | Rejected `
 
- + Think of it as  an "or" relationship. 
- + A Shape might be a sum type, as it could be a Circle or a Square or a Triangle.
- + Defines variants
- + Logical OR operator
- + Sum types are built with the '+' operator and combine types with OR as in T = A or B or C.
- + The Sum is the (union) of the value sets of the alternatives
+` Status + Boolean ` // Example: A Status type combined with a Boolean
 
-Traditionally more common in functional languages like Haskel as a data type or in Scala as a sealed trait of case classes and Java as a sealed interface of records.
-A very simple version in Java is an Enum type. Enums cannot have additional data associated with them once instantiated. 
-
-An important property of ADTs is that they can be sealed or closed. That means that their definition contains all possible cases and no further cases can exist. This allows the compiler is able to exhaustively verify all the alternatives.
-
-We can define a Status as a disjunction, the relation of three distinct alternatives 
+`3 + 2 = 5`  // The number of possible values is the sum of the number of values each component can take
 
 
-``` 
-    Under Review | Accepted | Rejected 
-```
+## Combining Product and Sum Types
 
-```
-    Status + Boolean 
-```
+Product and sum types can be combined, and they follow the distributive law of numerical algebra:
 
-```
-    3 + 2 = 5  
-```
+`(a * b + a * c) <=> a * (b +c)`
 
-
-
-We can further combine Product and Sum as they follow the same distributive law of numerical algebra.
-
-```
-(a * b + a * c) <=> a * (b +c)
-```
-
-We could define a DNS Record as a Sum Type
+For example, we could define a DNS Record as a sum type:
 
 ~~~ haskell
 DnsRecord(
@@ -126,7 +185,7 @@ DnsRecord(
 )
 ~~~
 
-But we could also refactor to a Product of Produce and Sums
+But we could also refactor it to a product of a product and sums:
 
 ~~~ haskell
 DnsRecord(ttl, name,
@@ -141,42 +200,37 @@ At the type level we can change ordering in using the same commutative law we wo
 
 Commutativity
 
-~~~
-(a * b) <=> (b * a)
-(a + b) <=> (b + a)
-~~~
+`(a * b) <=> (b * a)`
+`(a + b) <=> (b + a)`
 
 Associativity
 
-~~~
-(a + b) + c <=> a + (b + c)
-(a * b) * c <=> a * (b * c)
-~~~
-
+`(a + b) + c <=> a + (b + c)`
+`(a * b) * c <=> a * (b * c)`
 
 
 ## A Historical Perspective
-The concept of ADTs traces back to the early days of functional programming languages like ML and Hope in the 1970s. They were then popularized by languages like Haskell, which uses them as a fundamental building block.
 
+The concept of ADTs traces back to the early days of functional programming languages like ML and Hope in the 1970s. They were then popularised by languages like Haskell, which uses them as a fundamental building block.
 
 Let's take a quick tour of how ADTs (or their approximations) have been handled in different languages:
 
-- `C`: C lacks built-in support for ADTs but can simulate by using structs for product types and unions (combined with an enum for type tracking) for a rudimentary form of sum types.
-  The tagged union (also called a disjoint union) is a data structure used to hold a value that can take on several different, but fixed types. Only one of the types can be in use at any one time, and a tag field explicitly indicates which one is in use. Here the tag is a value that indicates the variant of the enum stored in the union.  However, unions are notoriously unsafe, as they don't enforce type checking at compile time.
+-   **C:** C lacks built-in support for ADTs but can simulate them by using `structs` for product types and `unions` (combined with an `enum` for type tracking) for a rudimentary form of sum types.
+    The tagged union (also called a disjoint union) is a data structure used to hold a value that can take on several different, but fixed, types. Only one of the types can be in use at any one time, and a tag field explicitly indicates which one is in use. Here, the tag is a value that indicates the variant of the enum stored in the union. However, unions are notoriously unsafe, as they don't enforce type checking at compile time.
 
-    ~~~ c
-      union vals {
-        char ch;
-        int nt;
-      };
-    
-      struct tagUnion {
-        char tag;
-        vals val;
-      };
-    ~~~
+    ```c
+    union vals {
+      char ch;
+      int nt;
+    };
+
+    struct tagUnion {
+      char tag; // Tag to track the active type
+      union vals val;
+    };
+    ```
   
-- `Haskell`: Haskell a functional language elegantly expresses ADTs with its data keyword. Haskell's type system is specifically designed to support the creation and manipulation of ADTs.
+- **Haskell**: Haskell a functional language elegantly expresses ADTs with its data keyword. Haskell's type system is specifically designed to support the creation and manipulation of ADTs.
 
    ~~~ haskell
   data Shape = Circle Float | Rectangle Float Float
@@ -184,7 +238,7 @@ Let's take a quick tour of how ADTs (or their approximations) have been handled 
   
   This defines Shape as a sum type that can be either a Circle with a radius (Float) or a Rectangle with width and height (Float).
 
-- `Scala`: Scala uses case classes for product types and sealed traits with case classes/objects for sum types. This provides a robust and type-safe way to define ADTs.
+- **Scala**: Scala uses case classes for product types and `sealed traits` with `case classes/objects` for sum types. This provides a robust and type-safe way to define ADTs.
 
   ~~~ scala
   sealed trait Shape
@@ -192,26 +246,19 @@ Let's take a quick tour of how ADTs (or their approximations) have been handled 
     case class Rectangle(width: Double, height: Double) extends Shape
   ~~~
 
-- `Java` (Pre-Java 17): Historically, Java relied on class hierarchies and the Visitor pattern to mimic sum types. This approach was verbose, requiring a lot of boilerplate code and was prone to errors if not carefully implemented. Product types were typically represented by classes with member variables.
-
-
+- **Java** (Pre-Java 17): Historically, Java relied on class hierarchies and the Visitor pattern to mimic sum types. This approach was verbose, requiring a lot of boilerplate code and was prone to errors if not carefully implemented. Product types were typically represented by classes with member variables.
 
 
 ## ADTs in Java
 
-Java's records and sealed interfaces provide an elegant mechanism for implementing ADTs. 
+Java's records and sealed interfaces provide an elegant mechanism for implementing ADTs.
 
+-   **Records:** Introduced in Java 14, records offer a concise syntax for defining immutable data carriers, providing *nominal* types and components with *human-readable* names.
+-   **Sealed Interfaces:** Introduced in Java 17, sealed interfaces allow classes and interfaces to have more control over their permitted subtypes. This enables precise data modeling as *sealed* hierarchies of immutable records. The compiler knows all possible subtypes at compile time, a crucial requirement for safe sum types.
+-   **Pattern Matching:** Pattern matching is a powerful feature that enhances Java's `instanceof` operator and `switch` expressions/statements. It allows developers to concisely and safely extract data from objects based on their structure. This capability streamlines type checking and casting, leading to more readable and less error-prone code. The evolution of pattern matching in Java is noteworthy. Initially introduced in Java 16 to enhance the `instanceof` operator (JEP 394), it was later extended to `switch` expressions and statements in Java 17 (JEP 406). This expansion broadened the applicability of pattern matching, enabling more expressive and safer code constructs.
 
-- Records, introduced in Java 14, offer a concise syntax for defining immutable data carriers. Providing `nominal` types and components with `human readable` names.  
+Restricting the possible implementations of a type enables exhaustive pattern matching and makes invalid states unrepresentable. This is particularly useful for general domain modeling with type safety.
 
-- Sealed interfaces, a feature introduced in Java 17, allows classes and interfaces to have more control over their permitted subtypes. We achieve precise data modelling as `sealed` hierarchies of immutable records.  This enables the compiler to know all possible subtypes at compile time, a crucial requirement for safe sum types.
-
-
-- Pattern matching is a powerful feature that enhances Java's instanceof operator and switch expressions/statements. It allows developers to concisely and safely extract data from objects based on their structure. This capability streamlines type checking and casting, leading to more readable and less error-prone code.
-  The evolution of pattern matching in Java is noteworthy. Initially introduced in Java 16 to enhance the instanceof operator (JEP 394), it was later extended to switch expressions and statements in Java 17 (JEP 406)9. This expansion broadened the applicability of pattern matching, enabling more expressive and safer code constructs.
-
-Restricting the possible implementations of a type, enables exhaustive pattern matching and making invalid states unrepresentable.  
-This is particularly useful for general domain modeling with type safety.
 
 
 
@@ -255,18 +302,15 @@ sealed interface Celestial {
 
 ~~~
 
-Unlike enums records allow us to attach arbitrary attributes to each of the enumerated states.  We are no longer restricted to fixed constants  
+Unlike enums, records allow us to attach arbitrary attributes to each of the enumerated states. We are no longer restricted to fixed constants.
 
-In the Celestial example we see a Sum of Products. This is a useful technique for modelling complex domains in a flexible but type-safe manner.
-For the Sums of Products to work we have to commit to the subtypes, which is a form of tight coupling.  This works if we are sure the subtypes are unlikely to change. 
-We trade some future flexibility for an exhaustive list of subtypes that allows better reasoning about shapes especially when it comes to pattern matching   
-
+In the Celestial example, we see a sum of products. This is a useful technique for modeling complex domains in a flexible but type-safe manner. For sums of products to work, we have to commit to the subtypes, which is a form of tight coupling. This works if we are sure the subtypes are unlikely to change. We trade some future flexibility for an exhaustive list of subtypes that allows better reasoning about shapes, especially when it comes to pattern matching.
 
 
 
 ### Advantages over the Visitor Pattern
 
-Traditionally, Java developers used the Visitor pattern to handle different types within a hierarchy. However, this approach has several drawbacks that we will see when we compare using a Sum type with pattern matching to the same effect using the Visitor pattern:
+Traditionally, Java developers used the Visitor pattern to handle different types within a hierarchy. However, this approach has several drawbacks, as we will see when we compare using a sum type with pattern matching to the same effect using the Visitor pattern:
 
 ### Using Visitor Pattern
 
@@ -328,6 +372,14 @@ Pentagon with side: 11.20, area: 215.82, perimeter: 56.00
 1. Shape is a sealed interface, allowing only permitting Circle, Rectangle, Triangle and Pentagon to implement it.
 2. Circle and Rectangle Triangle and Pentagon are records, concisely defining the data they hold.
 3. Shapes demonstrates using pattern matching with switch to handle different Shape types and perform operations like calculating area, perimeter or scaling. The compiler ensures that all possible Shape types are covered in the switch.
+
+Comparison with the Visitor Pattern
+
+- **Verbosity**: The Visitor pattern requires a lot of boilerplate code, with separate visitor interfaces and classes for each operation. ADTs with pattern matching are more concise.
+- **Openness to Extension**: Adding a new type to the hierarchy with the Visitor pattern requires modifying the visitor interface and all its implementations, violating the Open/Closed Principle. With ADTs, you only need to add a new record/case to the sealed hierarchy and update the pattern matching expressions.
+- **Exhaustiveness Checking**: The compiler cannot guarantee that all possible types are handled in the Visitor pattern, leading to potential runtime errors. With sealed types and pattern matching, the compiler can perform exhaustiveness checking, ensuring that all cases are handled.
+
+In summary, ADTs, particularly in modern Java with records, sealed interfaces, and pattern matching, offer a more elegant, type-safe, and maintainable approach to modeling complex data and their behavior, compared to traditional techniques like the Visitor pattern.
 
 
 
