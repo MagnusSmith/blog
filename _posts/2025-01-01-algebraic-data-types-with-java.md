@@ -308,9 +308,9 @@ In the Celestial example, we see a sum of products. This is a useful technique f
 
 
 
-### Advantages over the Visitor Pattern
+### Making use of ADTs
 
-Traditionally, Java developers used the Visitor pattern to handle different types within a hierarchy. However, this approach has several drawbacks, as we will see when we compare using a sum type with pattern matching to the same effect using the Visitor pattern:
+Traditionally, Java developers used the Visitor pattern to handle operations on different data types within a hierarchy. However, this approach has several drawbacks, as we will see when we compare using a sum type with Pattern Matching:
 
 ### Using Visitor Pattern
 
@@ -346,8 +346,11 @@ Pentagon with side: 11.20, area: 215.82, perimeter: 56.00
     + InfoVisitor: Generates a string with information about the shape (including area and perimeter).
     + ScaleVisitor: Scales a shape by a given factor.
 
+The Visitor pattern heavily relies on polymorphism, specifically double dispatch.
+1. **First Dispatch (Dynamic)**: When `accempt(visitor)` is called the correct \accept\ method is chosen at runtime based upon the actual type of shape. This is standard dynamic polymorphism.
+2. **Second Dispatch (Within Visitor**): Inside the `accept` method `this` is now statically known to the concrete shape type (e.g triangle).  Therefore the compiler can statically choose the correct `visit` method in the `Visitor` to call, based upon the type of the current visitor, passed in as an argument to the `accept()` method. 
 
-### Using Sum Type with pattern matching
+### Using Pattern Matching
 
 <script src="https://gist.github.com/MagnusSmith/5ea4b7c85a862cfcfbb8dc4b67fc421d.js"></script>
 
@@ -373,23 +376,35 @@ Pentagon with side: 11.20, area: 215.82, perimeter: 56.00
 2. Circle and Rectangle Triangle and Pentagon are records, concisely defining the data they hold.
 3. Shapes demonstrates using pattern matching with switch to handle different Shape types and perform operations like calculating area, perimeter or scaling. The compiler ensures that all possible Shape types are covered in the switch.
 
-Comparison with the Visitor Pattern
+### Comparing Pattern Matching with the Visitor Pattern
 
-- **Verbosity**: The Visitor pattern requires a lot of boilerplate code, with separate visitor interfaces and classes for each operation. ADTs with pattern matching are more concise.
-- **Openness to Extension**: Adding a new type to the hierarchy with the Visitor pattern requires modifying the visitor interface and all its implementations, violating the Open/Closed Principle. With ADTs, you only need to add a new record/case to the sealed hierarchy and update the pattern matching expressions.
-- **Exhaustiveness Checking**: The compiler cannot guarantee that all possible types are handled in the Visitor pattern, leading to potential runtime errors. With sealed types and pattern matching, the compiler can perform exhaustiveness checking, ensuring that all cases are handled.
+When we compare pattern matching to the visitor pattern we are actually looking at two different approaches to the [expression problem](https://en.wikipedia.org/wiki/Expression_problem)
+The `Expression Problem` in computer science highlights the challenge of extending data structures and operations independently. Specifically, it's difficult to:
+
+- **Add new data types**: Without modifying existing code that operates on those data types.
+- **Add new operations**: Without modifying existing data types.
+
+#### Visitor
+
+The visitor pattern is a solution that favours extending operations over extending data types:
+
+- **Adding new operations (Easy)**: Create a new Visitor
+- **Adding new data type (Hard)**:  Adding a new type to the hierarchy with the Visitor pattern requires modifying the visitor interface and all its implementations with a new `visit` method, violating the Open/Closed Principle.
+- **Verbosity**: The Visitor pattern requires a lot of boilerplate code, with separate visitor interfaces and classes for each operation
+- **Exhaustiveness Checking**: The compiler cannot guarantee that all possible types are handled in the Visitor pattern, leading to potential runtime errors.
+
+##### Patten Matching
+
+- **Add new operations (Easy)**:  Add a new pattern matching function
+- **Add new data type (Easier)**:  Only update the pattern matching code that needs to deal with the new data type 
+- **Verbosity**: ADTs with pattern matching are more concise.
+- **Exhaustiveness Checking**: With sealed types and pattern matching, the compiler can perform exhaustiveness checking, ensuring that all cases are handled.
+
+
 
 In summary, ADTs, particularly in modern Java with records, sealed interfaces, and pattern matching, offer a more elegant, type-safe, and maintainable approach to modeling complex data and their behavior, compared to traditional techniques like the Visitor pattern.
 
 
-
-### Compare with the Visitor Pattern approach 
-
-- `Verbosity`: The Visitor pattern requires a lot of boilerplate code, with separate visitor interfaces and classes for each operation.
-
-- `Openness to Extension`: Adding a new type to the hierarchy requires modifying the visitor interface and all its implementations, violating the Open/Closed Principle.
-
-- `Lack of Exhaustiveness Checking`: The compiler cannot guarantee that all possible types are handled, leading to potential runtime errors.
 
 References:
 
