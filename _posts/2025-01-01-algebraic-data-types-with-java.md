@@ -163,7 +163,7 @@ An important property of ADTs is that they can be sealed or closed. This means t
 
 We can define a `Status` as a disjunction, the relation of three distinct alternatives:
 
-~~~haskell
+~~~ haskell
 Under Review | Accepted | Rejected 
 ~~~
 Example: A Status type united with a Boolean type
