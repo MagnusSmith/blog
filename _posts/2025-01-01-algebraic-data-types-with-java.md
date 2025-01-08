@@ -19,9 +19,9 @@ image: magnussmith/assets/java.jpg
 
 ## Domain Modeling
 
-When we develop an application, we frequently need to model some aspects of the business to describe and solve a business problem. We do this by creating a conceptual representation of the real-world problem that we are trying to solve. This allows us to understand the "domain" where our software operates.
+When we develop an application, we frequently need to model some aspect of business to describe and solve a business problem. We do this by creating a conceptual representation of the real-world problem that we are trying to solve. This allows us to understand the "domain" where our software operates.
 
-Think of it like creating a blueprint before constructing a building. You identify the key elements, their relationships, and how they interact. This blueprint guides the software design and ensures it accurately reflects the real-world problem.
+Think of it like creating a blueprint before constructing a building. You identify the key elements, their relationships, and how they interact. The blueprint guides the software design and ensures it accurately reflects the business  problem.
 
 Essentially, Domain Modeling works in four stages:
 
@@ -65,9 +65,9 @@ The relationship between a domain model and an algebra might seem abstract at fi
 
 ### Benefits of this Approach:
 
-* **Rigor and Precision:** Using an algebraic approach brings rigor and precision to your domain model. It helps you clearly define the behavior of your system.
+* **Rigour and Precision:** Using an algebraic approach brings rigour and precision to the domain model. It helps us clearly define the behavior of a system.
 * **Testability:** Algebraic laws can be used to create comprehensive test cases, ensuring that your implementation adheres to the domain rules.
-* **Maintainability:** A well-defined algebra makes your code more modular and easier to maintain. Changes in the domain can be reflected by modifying the algebra and its implementation.
+* **Maintainability:** A well-defined algebra makes code more modular and easier to maintain. Changes in the domain can be reflected by modifying the algebra and its implementation.
 
 ### Example:
 
@@ -83,11 +83,11 @@ By implementing these algebraic laws in our code, we ensure that the banking sys
 
 ## Algebraic Data Types (ADTs)
 
-Algebraic Data Types (ADTs) are a way to structure data in functional programming languages. They provide a mechanism to create composite data types by combining other simpler types. ADTs allow developers to model complex data structures using simpler building blocks, much like building with LEGOs. Think of them as custom, compound data types you design for your specific needs.
+Algebraic Data Types (ADTs) are a way to structure data in functional programming languages. They provide a mechanism to create composite data types by combining other simpler types. ADTs help us to model complex data structures using simpler building blocks, much like building with LEGOs. Think of them as custom, compound data types that you design for your specific needs.
 
 ADTs are prevalent in functional programming due to their ability to enhance code safety, readability, and maintainability in a structured and type-safe manner.
 
-### Why Do We Need ADTs? What Problems Do They Solve?
+### Benefits of using ADTs
 
 ### Readability
 
@@ -128,20 +128,23 @@ Product types represent a combination of data where a type holds values of sever
 -   It defines values.
 -   Logical AND operator.
 -   Product types bundle two or more arbitrary types together such that `T = A AND B AND C`.
--   The product is the Cartesian product of all their components.
+-   The product is the [Cartesian product](https://www.ucl.ac.uk/~ucahmto/0005_2021/Ch2.S5.html) of all their components.
 
-In code, we see this as tuples, POJOs, or records. In set theory, this is the Cartesian product.
+In code, we see this as tuples, POJOs, structs, or records. In set theory, this is the Cartesian product.
 
+~~~ java
+public record TextStyle(Weight weight, Font font){}
+public enum Font { SERIF, SANS_SERIF, MONOSPACE }
+public enum Weight { NORMAL, LIGHT, HEAVY }
+~~~
 
+This is called a **product** type because the *set of all possible values* is the Carthesian product of the possible values of its components. For example:
 
- Building modern applications means managing complexity.   For years, Java developers have grappled with modelling representations of complex data and relationships in a clean, maintainable way.  More traditional Object-Oriented programming techniques provide many tools, but sometimes, it can feel that we are forcing data into structures that don't quite fit.
- Algebraic Data Types (ADTs), a powerful concept from functional programming that's making waves in the Java world, offering an elegant solution in the programmers arsenal.
+In abstract syntax: 
 
+`TextStyle = Weight ⨯ Font`
 
-
-`(Bool * Bool)`
-
-`2 * 2 = 4 `
+`6 = 3 x 3`
 
 ## Sum Types
 
@@ -160,12 +163,17 @@ An important property of ADTs is that they can be sealed or closed. This means t
 
 We can define a `Status` as a disjunction, the relation of three distinct alternatives:
 
+~~~haskell
+Under Review | Accepted | Rejected 
+~~~
 
-` Under Review | Accepted | Rejected `
+` Status + Boolean ` // Example: A Status type united with a Boolean type
 
-` Status + Boolean ` // Example: A Status type combined with a Boolean
+This is a **Sum** because the number of items in the resulting type is the sum of the number of items in each subtype.
 
-`3 + 2 = 5`  // The number of possible values is the sum of the number of values each component can take
+`3 + 2 = 5`  
+
+
 
 
 ## Combining Product and Sum Types
@@ -223,7 +231,7 @@ Let's take a quick tour of how ADTs (or their approximations) have been handled 
       char ch;
       int nt;
     };
-
+  
     struct tagUnion {
       char tag; // Tag to track the active type
       union vals val;
@@ -234,7 +242,7 @@ Let's take a quick tour of how ADTs (or their approximations) have been handled 
 
    ~~~ haskell
   data Shape = Circle Float | Rectangle Float Float
-   ~~~
+  ~~~
   
   This defines Shape as a sum type that can be either a Circle with a radius (Float) or a Rectangle with width and height (Float).
 
@@ -255,7 +263,7 @@ Java's records and sealed interfaces provide an elegant mechanism for implementi
 
 -   **Records:** Introduced in Java 14, records offer a concise syntax for defining immutable data carriers, providing *nominal* types and components with *human-readable* names.
 -   **Sealed Interfaces:** Introduced in Java 17, sealed interfaces allow classes and interfaces to have more control over their permitted subtypes. This enables precise data modeling as *sealed* hierarchies of immutable records. The compiler knows all possible subtypes at compile time, a crucial requirement for safe sum types.
--   **Pattern Matching:** Pattern matching is a powerful feature that enhances Java's `instanceof` operator and `switch` expressions/statements. It allows developers to concisely and safely extract data from objects based on their structure. This capability streamlines type checking and casting, leading to more readable and less error-prone code. The evolution of pattern matching in Java is noteworthy. Initially introduced in Java 16 to enhance the `instanceof` operator (JEP 394), it was later extended to `switch` expressions and statements in Java 17 (JEP 406). This expansion broadened the applicability of pattern matching, enabling more expressive and safer code constructs.
+-   **Pattern Matching:** Pattern matching is a powerful feature that enhances Java's `instanceof` operator and `switch` expressions/statements. It allows developers to concisely and safely extract data from objects based on their structure. This capability streamlines type checking and casting, leading to more readable and less error-prone code. The evolution of pattern matching in Java is noteworthy. Initially introduced in Java 16 to enhance the `instanceof` operator [JEP 394](https://openjdk.org/jeps/394), it was later extended to `switch` expressions and statements in Java 17 [JEP 406](https://openjdk.org/jeps/496). This expansion broadened the applicability of pattern matching, enabling more expressive and safer code constructs.
 
 Restricting the possible implementations of a type enables exhaustive pattern matching and makes invalid states unrepresentable. This is particularly useful for general domain modeling with type safety.
 
@@ -304,7 +312,7 @@ sealed interface Celestial {
 
 Unlike enums, records allow us to attach arbitrary attributes to each of the enumerated states. We are no longer restricted to fixed constants.
 
-In the Celestial example, we see a sum of products. This is a useful technique for modeling complex domains in a flexible but type-safe manner. For sums of products to work, we have to commit to the subtypes, which is a form of tight coupling. This works if we are sure the subtypes are unlikely to change. We trade some future flexibility for an exhaustive list of subtypes that allows better reasoning about shapes, especially when it comes to pattern matching.
+In the Celestial example, we see a `sum of products`. This is a useful technique for modeling complex domains in a flexible but type-safe manner.  For sums of products to work, we have to commit to the subtypes, which is a form of tight coupling. This works well if we are sure the subtypes are unlikely to change. We trade some future flexibility for an exhaustive list of subtypes that allows better reasoning about shapes, especially when it comes to pattern matching.
 
 
 
@@ -341,16 +349,18 @@ Pentagon with side: 11.20, area: 215.82, perimeter: 56.00
     + Each shape class implements the accept method, which takes a ShapeVisitor and calls the appropriate visit method on the visitor.
 
 3. Concrete Visitors:
-    + AreaCalculator: Calculates the area of a shape.
-    + PerimeterCalculator: Calculates the perimeter of a shape.
-    + InfoVisitor: Generates a string with information about the shape (including area and perimeter).
-    + ScaleVisitor: Scales a shape by a given factor.
+    + `AreaCalculator`: Calculates the area of a shape.
+    + `PerimeterCalculator`: Calculates the perimeter of a shape.
+    + `InfoVisitor`: Generates a string with information about the shape (including area and perimeter).
+    + `ScaleVisitor`: Scales a shape by a given factor.
 
 The Visitor pattern heavily relies on polymorphism, specifically double dispatch.
-1. **First Dispatch (Dynamic)**: When `accempt(visitor)` is called the correct \accept\ method is chosen at runtime based upon the actual type of shape. This is standard dynamic polymorphism.
+1. **First Dispatch (Dynamic)**: When `accempt(visitor)` is called the correct `accept` method is chosen at runtime based upon the actual type of shape. This is standard dynamic polymorphism.
 2. **Second Dispatch (Within Visitor**): Inside the `accept` method `this` is now statically known to the concrete shape type (e.g triangle).  Therefore the compiler can statically choose the correct `visit` method in the `Visitor` to call, based upon the type of the current visitor, passed in as an argument to the `accept()` method. 
 
 ### Using Pattern Matching
+
+Lets look at the same model with pattern matching
 
 <script src="https://gist.github.com/MagnusSmith/5ea4b7c85a862cfcfbb8dc4b67fc421d.js"></script>
 
@@ -372,19 +382,21 @@ Pentagon with side: 11.20, area: 215.82, perimeter: 56.00
 ~~~
 
 #### Explanation:
-1. Shape is a sealed interface, allowing only permitting Circle, Rectangle, Triangle and Pentagon to implement it.
-2. Circle and Rectangle Triangle and Pentagon are records, concisely defining the data they hold.
-3. Shapes demonstrates using pattern matching with switch to handle different Shape types and perform operations like calculating area, perimeter or scaling. The compiler ensures that all possible Shape types are covered in the switch.
+1. `Shape` is a sealed interface, allowing only permitting `Circle`,` Rectangle`,` Triangle` and `Pentagon` to implement it.
+2. `Circle` and Rectangle Triangle and Pentagon are records, concisely defining the data they hold.
+3. `Shapes` demonstrates using pattern matching with switch to handle different Shape types and perform operations like calculating area, perimeter or scaling. The compiler ensures that all possible Shape types are covered in the switch.
 
 ### Comparing Pattern Matching with the Visitor Pattern
 
 When we compare pattern matching to the visitor pattern we are actually looking at two different approaches to the [expression problem](https://en.wikipedia.org/wiki/Expression_problem)
-The `Expression Problem` in computer science highlights the challenge of extending data structures and operations independently. Specifically, it's difficult to:
+The `Expression Problem` in computer science highlights the challenge of extending data structures and operations independently. 
+
+Specifically, it's difficult to:
 
 - **Add new data types**: Without modifying existing code that operates on those data types.
 - **Add new operations**: Without modifying existing data types.
 
-#### Visitor
+#### Visitor Pattern
 
 The visitor pattern is a solution that favours extending operations over extending data types:
 
@@ -399,8 +411,6 @@ The visitor pattern is a solution that favours extending operations over extendi
 - **Add new data type (Easier)**:  Only update the pattern matching code that needs to deal with the new data type 
 - **Verbosity**: ADTs with pattern matching are more concise.
 - **Exhaustiveness Checking**: With sealed types and pattern matching, the compiler can perform exhaustiveness checking, ensuring that all cases are handled.
-
-
 
 In summary, ADTs, particularly in modern Java with records, sealed interfaces, and pattern matching, offer a more elegant, type-safe, and maintainable approach to modeling complex data and their behavior, compared to traditional techniques like the Visitor pattern.
 
