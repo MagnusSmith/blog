@@ -117,7 +117,7 @@ In the context of Algebraic Data Types (ADTs), "algebra" refers to the operation
 -   **Operations:** The ways to combine types to create new types.
 -   **Laws:** The relationships between the types and the operations.
 
-In ADTs, the algebra consists of two primary operators: 'x' (product) and '+' (sum).
+In ADTs, the algebra consists of two primary operators: **x** (`product`) and **+** (`sum`).
 
 ## Product Types
 
@@ -138,7 +138,7 @@ public enum Font { SERIF, SANS_SERIF, MONOSPACE }
 public enum Weight { NORMAL, LIGHT, HEAVY }
 ~~~
 
-This is called a **product** type because the *set of all possible values* is the Carthesian product of the possible values of its components. For example:
+This is called a **product** type because the *set of all possible values* is the Cartesian product of the possible values of its components. For example:
 
 In abstract syntax: 
 
@@ -166,8 +166,9 @@ We can define a `Status` as a disjunction, the relation of three distinct altern
 ~~~haskell
 Under Review | Accepted | Rejected 
 ~~~
+Example: A Status type united with a Boolean type
 
-` Status + Boolean ` // Example: A Status type united with a Boolean type
+`Status + Boolean` 
 
 This is a **Sum** because the number of items in the resulting type is the sum of the number of items in each subtype.
 
@@ -226,7 +227,7 @@ Let's take a quick tour of how ADTs (or their approximations) have been handled 
 -   **C:** C lacks built-in support for ADTs but can simulate them by using `structs` for product types and `unions` (combined with an `enum` for type tracking) for a rudimentary form of sum types.
     The tagged union (also called a disjoint union) is a data structure used to hold a value that can take on several different, but fixed, types. Only one of the types can be in use at any one time, and a tag field explicitly indicates which one is in use. Here, the tag is a value that indicates the variant of the enum stored in the union. However, unions are notoriously unsafe, as they don't enforce type checking at compile time.
 
-    ```c
+~~~ c
     union vals {
       char ch;
       int nt;
@@ -236,23 +237,23 @@ Let's take a quick tour of how ADTs (or their approximations) have been handled 
       char tag; // Tag to track the active type
       union vals val;
     };
-    ```
+~~~
   
 - **Haskell**: Haskell a functional language elegantly expresses ADTs with its data keyword. Haskell's type system is specifically designed to support the creation and manipulation of ADTs.
 
-   ~~~ haskell
+~~~ haskell
   data Shape = Circle Float | Rectangle Float Float
-  ~~~
+~~~
   
   This defines Shape as a sum type that can be either a Circle with a radius (Float) or a Rectangle with width and height (Float).
 
 - **Scala**: Scala uses case classes for product types and `sealed traits` with `case classes/objects` for sum types. This provides a robust and type-safe way to define ADTs.
 
-  ~~~ scala
+~~~ scala
   sealed trait Shape
     case class Circle(radius: Double) extends Shape
     case class Rectangle(width: Double, height: Double) extends Shape
-  ~~~
+~~~
 
 - **Java** (Pre-Java 17): Historically, Java relied on class hierarchies and the Visitor pattern to mimic sum types. This approach was verbose, requiring a lot of boilerplate code and was prone to errors if not carefully implemented. Product types were typically represented by classes with member variables.
 
