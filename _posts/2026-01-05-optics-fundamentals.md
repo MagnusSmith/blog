@@ -105,7 +105,7 @@ With the dependencies in place, we're ready to explore each optic type in depth.
 - **[PrismDemo](https://github.com/higher-kinded-j/expression-language-example/blob/main/src/main/java/org/higherkindedj/article2/demo/PrismDemo.java)**: Prism operations and type-safe downcasting
 - **[TraversalDemo](https://github.com/higher-kinded-j/expression-language-example/blob/main/src/main/java/org/higherkindedj/article2/demo/TraversalDemo.java)**: List traversals and filtering
 - **[CompositionDemo](https://github.com/higher-kinded-j/expression-language-example/blob/main/src/main/java/org/higherkindedj/article2/demo/CompositionDemo.java)**: Deep path composition for nested updates
-- **[ExpressionPreviewDemo](https://github.com/higher-kinded-j/expression-language-example/blob/main/src/main/java/org/higherkindedj/article2/demo/ExpressionPreviewDemo.java)**: Preview of the expression language from Article 3
+- **[ExpressionPreviewDemo](https://github.com/higher-kinded-j/expression-language-example/blob/main/src/main/java/org/higherkindedj/article2/demo/ExpressionPreviewDemo.java)**: Preview of the expression language from Part 3
 
 The domain classes use Higher-Kinded-J's annotation-driven generation, defined in [`org.higherkindedj.article2.domain`](https://github.com/higher-kinded-j/expression-language-example/blob/main/src/main/java/org/higherkindedj/article2/domain/).
 
@@ -196,23 +196,26 @@ Employee updated = employeeStreet.set("200 Oak Avenue", employee);
 Employee transformed = employeeStreet.modify(s -> s + " (verified)", employee);
 ~~~~
 
-Each composed lens handles all the intermediate reconstruction automatically. That twenty-five-line copy-constructor cascade from Article 1? It's now implicit in the lens composition.
+Each composed lens handles all the intermediate reconstruction automatically. That twenty-five-line copy-constructor cascade from Part 1? It's now implicit in the lens composition.
 
 ### Lens Laws
 
 Well-behaved lenses must satisfy three laws that ensure predictable behaviour:
 
 1. **Get-Set**: If you get a value and then set it back, the structure is unchanged.
+
    ~~~~ java
    lens.set(lens.get(s), s) == s
    ~~~~
 
 2. **Set-Get**: If you set a value, getting it returns what you set.
+
    ~~~~ java
    lens.get(lens.set(a, s)) == a
    ~~~~
 
 3. **Set-Set**: Setting twice is the same as setting once with the final value.
+
    ~~~~ java
    lens.set(a2, lens.set(a1, s)) == lens.set(a2, s)
    ~~~~
@@ -466,7 +469,7 @@ A monoid is simply: (1) a way to combine two values, and (2) an "empty" starting
 
 ## Composition Patterns
 
-In Article 1 we introduced the composition table showing how optics combine. The key insight bears repeating: composing with something "weaker" (that might not find anything, or might find many things) yields a `Traversal`.
+In Part 1 we introduced the composition table showing how optics combine. The key insight bears repeating: composing with something "weaker" (that might not find anything, or might find many things) yields a `Traversal`.
 
 In Higher-Kinded-J, we use `asTraversal()` to convert lenses and prisms before composing them with `andThen()`. This uniform API means you don't need to remember special composition methods for each combination.
 
@@ -494,7 +497,7 @@ Traversal<Company, String> allManagerCities =
 Company relocated = Traversals.modify(allManagerCities, _ -> "Manchester", company);
 ~~~~
 
-### Real-World Example: Updating Nested Orders
+### Example: Updating Nested Orders
 
 Consider an e-commerce domain:
 
@@ -561,7 +564,7 @@ Either<ValidationError, Employee> checked = streetLens.modifyF(
 
 The same optic (the same composed path) works with any effect. This is the power of higher-kinded types: abstracting over the computational context.
 
-We'll explore `modifyF` fully in Article 5, where we'll use it for type-checking with error accumulation and interpretation with state. For now, know that the optics you're learning aren't limited to pure transformations.
+We'll explore `modifyF` fully in Part 5, where we'll use it for type-checking with error accumulation and interpretation with state. For now, know that the optics you're learning aren't limited to pure transformations.
 
 ### A Preview: The [Focus DSL](https://higher-kinded-j.github.io/v0.3.0/optics/ch4_intro.html)
 
@@ -579,7 +582,7 @@ String street = EmployeeFocus.address().street().get(employee);
 
 The Focus DSL wraps optics in path types (`FocusPath`, `AffinePath`, `TraversalPath`) that enable fluent cross-type navigation. When navigators are enabled, you chain directly through nested types without explicit composition.
 
-We'll introduce the Focus DSL properly in Article 3 and use it extensively from Article 4 onwards. For now, understanding the underlying optics gives you the conceptual foundation that makes the DSL's elegance possible.
+We'll introduce the Focus DSL properly in Part 3 and use it extensively from Part 4 onwards. For now, understanding the underlying optics gives you the conceptual foundation that makes the DSL's elegance possible.
 
 ~~~~ java 
 MaybePath<String> maybeEmail = emailPath.toMaybePath(user)
@@ -591,13 +594,13 @@ ValidationPath<List<Error>, String> validated = emailPath.toValidationPath(user)
     .via(email -> validateEmail(email));
 ~~~~
 
-The [Effect Path API](https://higher-kinded-j.github.io/v0.3.0/effect/ch_intro.html) becomes the primary focus in Article 5, where we use it for type checking with error accumulation and interpretation with state. The combination of Focus paths (for navigation) with Effect paths (for computation) gives you a complete toolkit for data-oriented programming.
+The [Effect Path API](https://higher-kinded-j.github.io/v0.3.0/effect/ch_intro.html) becomes the primary focus in Part 5, where we use it for type checking with error accumulation and interpretation with state. The combination of Focus paths (for navigation) with Effect paths (for computation) gives you a complete toolkit for data-oriented programming.
 
 ---
 
 ## Introducing the Expression Language
 
-Starting in the next Article 3, we'll build an expression language interpreter, the canonical showcase for optics. Here's a preview of the domain:
+Starting in the next Part 3, we'll build an expression language interpreter, the canonical showcase for optics. Here's a preview of the domain:
 
 ~~~~ java
 @GeneratePrisms
@@ -648,10 +651,7 @@ Key takeaways:
 What makes Higher-Kinded-J elegant is how it brings these functional programming patterns to Java without sacrificing type safety or requiring language extensions. The annotation processor generates clean, idiomatic code that integrates seamlessly with Java's records and sealed interfaces.
 You get the full power of composable optics with the expressiveness of higher-kinded types, while the API remains approachable to Java developers unfamiliar with Haskell or Scala.
 
-The library's design philosophy prioritises practicality: minimal boilerplate, compile-time verification of optic laws, and clear composition semantics.
-Rather than fighting Java's type system, Higher-Kinded-J works with it, using witness types and type-class patterns that feel natural once understood.
-
-In Article 3, we'll apply these fundamentals to build the expression language AST, introducing the `@GenerateFocus` annotation alongside lenses and prisms. You'll see how the Focus DSL transforms optic composition from explicit method chains into fluent navigation, making real-world tree manipulation remarkably clean.
+In Part 3, we'll apply these fundamentals to build the expression language AST, introducing the `@GenerateFocus` annotation alongside lenses and prisms. You'll see how the Focus DSL transforms optic composition from explicit method chains into fluent navigation, making real-world tree manipulation remarkably clean.
 
 ---
 
@@ -675,16 +675,13 @@ In Article 3, we'll apply these fundamentals to build the expression language AS
 
 - **[Higher-Kinded-J GitHub Repository](https://github.com/higher-kinded-j/higher-kinded-j)**: Source code, documentation, and examples.
 
-- **[Annotation Processor Guide](https://github.com/higher-kinded-j/higher-kinded-j/tree/main/hkj-processor)**: How `@GenerateLenses` and `@GeneratePrisms` work under the hood.
+- **[Focus DSL Guide](https://higher-kinded-j.github.io/v0.3.0/optics/ch4_intro.html)**: Fluent navigation with FocusPath, AffinePath, and TraversalPath.
+
+- **[Effect Path API Guide](https://higher-kinded-j.github.io/v0.3.0/effect/ch_intro.html)**: Railway-style error handling with MaybePath, EitherPath, and ValidationPath
 
 - **[Type-Class Instances](https://higher-kinded-j.github.io/v0.3.0/functional/ch_intro.html)**: The `Functor`, `Applicative`, and `Monad` abstractions that power effect-polymorphic operations.
 
-- **[Focus DSL Guide](https://higher-kinded-j.github.io/v0.3.0/optics/ch4_intro.html)**: Fluent navigation with FocusPath, AffinePath, and TraversalPath.
-
-- **[Effect Path API Guide](https://higher-kinded-j.github.io/v0.3.0/effect/ch_intro.html)**: Railway-style error handling with MaybePath, EitherPath, and ValidationPath.
-
 ---
-
 
 ### Next time
 

@@ -632,4 +632,4 @@ By the end of this series, you'll not want to update nested data manually again.
 
 ### Next time
 
-Next time we dig into the three main optics: lenses, prisms, and traversals.  [Part 2: Optics Fundamentals]({{site.baseurl}}/2026/01/05/optics-fundamentals.html)
+Next time we dig into the three main optics: lenses, prisms, and traversals.  [Part 2: Optics Fundamentals]({{site.baseurl}}/2026/01/04/optics-fundamentals.html)
