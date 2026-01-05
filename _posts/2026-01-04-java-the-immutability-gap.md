@@ -36,23 +36,23 @@ The first half of this series focuses on [Optics](https://higher-kinded-j.github
 
 Java's evolution over the past few years has been remarkable. With records, we can define immutable data types in a single line:
 
-```java
+~~~~ java
 public record Address(String street, String city, String postcode) {}
-```
+~~~~
 
 No more boilerplate. No more mutable fields to worry about. The compiler generates `equals()`, `hashCode()`, and `toString()` for us. Records are final, their fields are final, and they encourage a data-oriented programming style that functional programmers have long advocated.
 
 Pattern matching, introduced progressively from Java 16 onwards, lets us destructure these records elegantly:
 
-```java
+~~~~ java
 if (employee instanceof Employee(var id, var name, Address(var street, _, _))) {
     System.out.println(name + " lives on " + street);
 }
-```
+~~~~
 
 We can reach into nested structures, extract what we need, and bind values to variables in a single expression. Combined with sealed interfaces, we get exhaustive switch expressions that the compiler can verify:
 
-```java
+~~~~ java
 sealed interface Shape permits Circle, Rectangle, Triangle {}
 
 String describe(Shape shape) {
@@ -62,7 +62,7 @@ String describe(Shape shape) {
         case Triangle(var a, var b, var c) -> "A triangle";
     };
 }
-```
+~~~~
 
 This is genuinely excellent. Modern Java has become a credible language for data-oriented programming, with immutability at its core.
 
@@ -76,22 +76,22 @@ Reading nested immutable data is elegant. Writing it is not.
 
 Consider a simple domain model for a company:
 
-```java
+~~~~ java
 public record Address(String street, String city, String postcode) {}
 public record Employee(String id, String name, Address address) {}
 public record Department(String name, Employee manager, List<Employee> staff) {}
 public record Company(String name, Address headquarters, List<Department> departments) {}
-```
+~~~~
 
 Four straightforward records. Nothing complex. Now suppose we need to update the street address of the Engineering department's manager. In a mutable world, this would be trivial:
 
-```java
+~~~~ java
 company.getDepartment("Engineering").getManager().getAddress().setStreet("100 New Street");
-```
+~~~~
 
 One line. Done. But our records are immutable: there are no setters. Instead, we must reconstruct every record in the path from root to leaf:
 
-```java
+~~~~ java
 public static Company updateManagerStreet(Company company, String deptName, String newStreet) {
     List<Department> updatedDepts = new ArrayList<>();
 
@@ -133,7 +133,7 @@ public static Company updateManagerStreet(Company company, String deptName, Stri
         List.copyOf(updatedDepts)
     );
 }
-```
+~~~~
 
 Twenty-five lines of code to change a single string. Every record in the path must be manually reconstructed, copying all unchanged fields. This is the *copy constructor cascade*, an anti-pattern that plagues immutable codebases.
 
@@ -141,22 +141,22 @@ Twenty-five lines of code to change a single string. Every record in the path mu
 
 You might think: "Just add `withX()` methods to each record." Indeed, you could:
 
-```java
+~~~~ java
 public record Address(String street, String city, String postcode) {
     public Address withStreet(String street) {
         return new Address(street, this.city, this.postcode);
     }
 }
-```
+~~~~
 
 This helps somewhat, but it doesn't compose. You still need to thread the updated value back through every layer:
 
-```java
+~~~~ java
 var newAddress = manager.address().withStreet("100 New Street");
 var newManager = manager.withAddress(newAddress);
 var newDept = dept.withManager(newManager);
 // ... and so on
-```
+~~~~
 
 The ceremony remains. The boilerplate persists. And the potential for error (accidentally copying the wrong field, forgetting to update an intermediate layer) grows with each level of nesting.
 
@@ -168,43 +168,43 @@ Here's the insight that motivated this article: pattern matching solves *reading
 
 Consider the asymmetry. To read an employee's street, we can write:
 
-```java
+~~~~ java
 if (employee instanceof Employee(_, _, Address(var street, _, _))) {
     return street;
 }
-```
+~~~~
 
 Pattern matching lets us drill down through layers, ignoring fields we don't care about, and extract exactly what we need. It's declarative, composable, and elegant.
 
 But to write a new street? We're back to the imperative copy-constructor cascade. There's no "pattern setting" in Java. We cannot write:
 
-```java
+~~~~ java
 employee with { address.street = "100 New Street" }  // Nested updates: not supported
-```
+~~~~
 
 ### A Note on JEP 468: Derived Record Creation
 
 Java is making progress here. [JEP 468](https://openjdk.org/jeps/468) introduces derived record creation, a `with` expression for records. Currently in preview (JDK 25), it allows:
 
-```java
+~~~~ java
 Address updated = oldAddress with { street = "100 New Street"; };
-```
+~~~~
 
 This is a very useful start. Instead of manually copying every field, you specify only what changes. The compiler handles the rest.
 
 However, JEP 468 solves *single-level* updates, not *nested* ones. You cannot write:
 
-```java
+~~~~ java
 employee with { address.street = "100 New Street" }  // Not supported by JEP 468
-```
+~~~~
 
 To update a nested field, you must chain `with` expressions at each level:
 
-```java
+~~~~ java
 Employee updated = employee with {
     address = address with { street = "100 New Street"; };
 };
-```
+~~~~
 
 Better than the full copy-constructor cascade, certainly. But you still manually thread updates through each layer. The ceremony shrinks but doesn't disappear. As nesting deepens (a company containing departments containing employees containing addresses), even chained `with` expressions become unwieldy.
 
@@ -242,7 +242,7 @@ The simplest optic is a *lens*. A lens focuses on exactly one value within a lar
 
 Here's what a lens looks like conceptually:
 
-```java
+~~~~ java
 public record Lens<S, A>(
     Function<S, A> get,
     BiFunction<A, S, S> set
@@ -251,20 +251,20 @@ public record Lens<S, A>(
         return set.apply(f.apply(get.apply(whole)), whole);
     }
 }
-```
+~~~~
 
 Two functions: one to extract, one to replace. The `modify` method combines them: extract the value, transform it, put it back.
 
 The magic happens when you compose lenses:
 
-```java
+~~~~ java
 public <B> Lens<S, B> andThen(Lens<A, B> other) {
     return Lens.of(
         s -> other.get(this.get(s)),
         (b, s) -> this.set(other.set(b, this.get(s)), s)
     );
 }
-```
+~~~~
 
 Given a lens from `Employee` to `Address` and a lens from `Address` to `String` (the street), `andThen` produces a lens from `Employee` to `String`. The composed lens automatically handles the intermediate reconstruction, eliminating the manual copy-constructor cascade.
 
@@ -300,11 +300,11 @@ Lenses always succeed: you can always get the focused value, and you can always 
 
 A prism focuses on one variant of a sum type. It's the optic for "is-a" relationships:
 
-```java
+~~~~ java
 sealed interface Shape permits Circle, Rectangle {}
 record Circle(double radius) implements Shape {}
 record Rectangle(double width, double height) implements Shape {}
-```
+~~~~
 
 A prism for `Circle` provides two operations:
 - **Match**: Extract the `Circle` from a `Shape`, if it is one (returning `Optional`)
@@ -323,11 +323,11 @@ A traversal focuses on zero or more values simultaneously. It's the optic for co
 
 Traversals let you modify all focused values at once:
 
-```java
+~~~~ java
 // Give every employee in the department a raise
 Traversal<Department, BigDecimal> allSalaries = ...;
 Department updated = allSalaries.modify(s -> s.multiply(RAISE_FACTOR), dept);
-```
+~~~~
 
 Every employee's salary is updated. The traversal handled the iteration internally.
 
@@ -335,7 +335,7 @@ Every employee's salary is updated. The traversal handled the iteration internal
 
 Optics form a hierarchy based on their focusing power. The diagram below shows how they relate. Read it from bottom to top: more specific optics (at the bottom) can always be used where more general ones (at the top) are expected.
 
-```
+~~~~ 
                   ┌─────────────┐
                   │  Traversal  │  Zero or more targets
                   │  (0..n)     │
@@ -361,7 +361,7 @@ Optics form a hierarchy based on their focusing power. The diagram below shows h
         │    Iso    │  Exactly one, reversible
         │   (1↔1)   │
         └───────────┘
-```
+~~~~ 
 
 **Reading the diagram:**
 
@@ -419,7 +419,7 @@ In practice, you'll compose these freely. Navigating to "the salary of every ful
 
 Before diving deeper into theory, let's see the payoff. Here's the twenty-five-line method from earlier:
 
-```java
+~~~~ java
 // Manual approach: ~25 lines
 public static Company updateManagerStreet(Company company, String deptName, String newStreet) {
     List<Department> updatedDepts = new ArrayList<>();
@@ -437,11 +437,11 @@ public static Company updateManagerStreet(Company company, String deptName, Stri
     }
     return new Company(company.name(), company.headquarters(), List.copyOf(updatedDepts));
 }
-```
+~~~~ 
 
 And here's the same operation with optics:
 
-```java
+~~~~ java
 // Optics approach: 1 line
 private static final Lens<Employee, String> employeeStreet =
     Employee.Lenses.address().andThen(Address.Lenses.street());
@@ -452,13 +452,13 @@ private static final Lens<Department, String> managerStreet =
 public static Department updateManagerStreet(Department dept, String newStreet) {
     return managerStreet.set(newStreet, dept);
 }
-```
+~~~~ 
 
 Define the path once. Use it anywhere. The lens composition handles all the intermediate reconstruction automatically.
 
 Want to give *all* employees in a department a 10% raise? With manual code, you'd need nested loops and careful reconstruction. With optics:
 
-```java
+~~~~ java
 // Define the path to all salaries once
 private static final Traversal<Department, BigDecimal> allSalaries =
     Department.Lenses.staff().andThen(Traversals.list())
@@ -467,7 +467,7 @@ private static final Traversal<Department, BigDecimal> allSalaries =
 public static Department giveEveryoneARaise(Department dept) {
     return allSalaries.modify(salary -> salary.multiply(new BigDecimal("1.10")), dept);
 }
-```
+~~~~ 
 
 A single expression. No loops. No manual reconstruction. The traversal handles the collection, the lenses handle the path. Every employee gets their raise, and every intermediate record is reconstructed correctly.
 
@@ -479,7 +479,7 @@ A single expression. No loops. No manual reconstruction. The traversal handles t
 
 Let's build a working lens from scratch. We'll start with the core abstraction:
 
-```java
+~~~~ java
 public record Lens<S, A>(
     Function<S, A> get,
     BiFunction<A, S, S> set
@@ -507,11 +507,11 @@ public record Lens<S, A>(
         );
     }
 }
-```
+~~~~ 
 
 Now we can define lenses for our records:
 
-```java
+~~~~ java
 public record Address(String street, String city, String postcode) {
 
     public static final class Lenses {
@@ -523,13 +523,13 @@ public record Address(String street, String city, String postcode) {
         }
     }
 }
-```
+~~~~ 
 
 The pattern is mechanical: the getter is the record accessor, the setter creates a new record with one field changed. In production code with Higher-Kinded-J, the `@GenerateLenses` annotation generates these automatically.
 
 Composition is where the magic happens:
 
-```java
+~~~~ java
 Lens<Employee, String> employeeStreet =
     Employee.Lenses.address().andThen(Address.Lenses.street());
 
@@ -541,7 +541,7 @@ Employee updated = employeeStreet.set("100 New Street", employee);
 
 // Modify the street (returns a new Employee)
 Employee uppercased = employeeStreet.modify(String::toUpperCase, employee);
-```
+~~~~ 
 
 One composed lens replaces what would otherwise be multiple levels of manual reconstruction. Deep updates now become shallow expressions.
 
@@ -620,7 +620,7 @@ By the end of this series, you'll not want to update nested data manually again.
 
 - **[Higher-Kinded-J GitHub Repository](https://github.com/higher-kinded-j/higher-kinded-j)**: Source code, documentation, and examples.
 
-- **[Optics Module Documentation](https://higher-kinded-j.github.io/v0.3.0/optics/ch1_intro.html)**: API reference for lenses, prisms, and traversals.
+- **[Optics Introduction](https://higher-kinded-j.github.io/v0.3.0/optics/ch1_intro.html)**: API reference for lenses, prisms, and traversals.
 
 - **[Focus DSL Guide](https://higher-kinded-j.github.io/v0.3.0/optics/focus_dsl.html)**: Fluent navigation with FocusPath, AffinePath, and TraversalPath.
 
