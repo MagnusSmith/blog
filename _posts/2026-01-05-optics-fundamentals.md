@@ -1,3 +1,16 @@
+---
+title: Functional Optics for Modern Java - Part 2
+date: 2026-01-04 00:00:00 Z
+categories:
+- Tech
+tags:
+- Java, Functional Programming, Optics
+author: magnussmith
+summary: This article dives deep into the three core optic types:: lenses for product types, prisms for sum types, and traversals for collections 
+image: magnussmith/assets/java.jpg
+---
+
+
 # Optics Fundamentals: Lenses, Prisms, and Traversals in Practice
 
 *Part 2 of the Functional Optics for Modern Java series*
@@ -11,11 +24,11 @@ Now it's time to get practical. This article dives deep into the three core opti
 ## Setting Up Higher-Kinded-J
 
 Before we explore optics in depth, let's configure our project to use Higher-Kinded-J's annotation-driven generation.  
-You will want to grab latest Java 25 and if you are using Gradle 9.2.1+.
+To follow along you will need Java 25 and if you are using Gradle 9.2.1 or newer.
 
 ### Gradle Configuration
 
-```kotlin
+~~~~ kotlin
 plugins {
     java
 }
@@ -39,11 +52,11 @@ java {
         languageVersion.set(JavaLanguageVersion.of(25))
     }
 }
-```
+~~~~
 
 ### Maven Configuration
 
-```xml
+~~~~ xml
 
 <properties>
     <hkj.version>0.3.0</hkj.version>
@@ -74,7 +87,7 @@ java {
         </plugin>
     </plugins>
 </build>
-```
+~~~~
 
 With the dependencies in place, we're ready to explore each optic type in depth.
 
@@ -106,7 +119,7 @@ A lens focuses on exactly one value within a larger structure. It represents a "
 
 The `@GenerateLenses` annotation instructs Higher-Kinded-J to generate lens accessors for each record component:
 
-```java
+~~~~ java
 import org.higherkindedj.optics.annotations.GenerateLenses;
 
 @GenerateLenses
@@ -117,11 +130,11 @@ public record Employee(String id, String name, Address address) {}
 
 @GenerateLenses
 public record Department(String name, Employee manager, List<Employee> staff) {}
-```
+~~~~
 
 The annotation processor generates a companion class with lens factories:
 
-```java
+~~~~ java
 // Generated: AddressLenses.java
 public final class AddressLenses {
     public static Lens<Address, String> street() { ... }
@@ -135,13 +148,13 @@ public final class EmployeeLenses {
     public static Lens<Employee, String> name() { ... }
     public static Lens<Employee, Address> address() { ... }
 }
-```
+~~~~
 
 ### Using Lenses
 
 Each lens provides three core operations:
 
-```java
+~~~~ java
 Lens<Address, String> streetLens = AddressLenses.street();
 
 // Get: extract the focused value
@@ -152,7 +165,7 @@ Address updated = streetLens.set("100 New Street", address);
 
 // Modify: apply a function to the focused value
 Address uppercased = streetLens.modify(String::toUpperCase, address);
-```
+~~~~ 
 
 The `modify` operation is particularly powerful: it combines get and set in a single traversal, ensuring the transformation is applied consistently.
 
@@ -160,7 +173,7 @@ The `modify` operation is particularly powerful: it combines get and set in a si
 
 The real power emerges when you compose lenses. The `andThen` method chains lenses to reach deeper into nested structures:
 
-```
+~~~~
 ┌──────────────┐      ┌─────────────┐      ┌────────────┐
 │   Employee   │─────▶│   Address   │─────▶│   String   │
 │              │      │             │      │  (street)  │
@@ -170,9 +183,9 @@ The real power emerges when you compose lenses. The `andThen` method chains lens
        │                    │                    │
        └────────────────────┴────────────────────┘
                 employeeStreet (composed)
-```
+~~~~
 
-```java
+~~~~ java
 // Compose: Employee → Address → String
 Lens<Employee, String> employeeStreet =
     EmployeeLenses.address().andThen(AddressLenses.street());
@@ -181,7 +194,7 @@ Lens<Employee, String> employeeStreet =
 String street = employeeStreet.get(employee);
 Employee updated = employeeStreet.set("200 Oak Avenue", employee);
 Employee transformed = employeeStreet.modify(s -> s + " (verified)", employee);
-```
+~~~~
 
 Each composed lens handles all the intermediate reconstruction automatically. That twenty-five-line copy-constructor cascade from Article 1? It's now implicit in the lens composition.
 
@@ -190,19 +203,19 @@ Each composed lens handles all the intermediate reconstruction automatically. Th
 Well-behaved lenses must satisfy three laws that ensure predictable behaviour:
 
 1. **Get-Set**: If you get a value and then set it back, the structure is unchanged.
-   ```java
+   ~~~~ java
    lens.set(lens.get(s), s) == s
-   ```
+   ~~~~
 
 2. **Set-Get**: If you set a value, getting it returns what you set.
-   ```java
+   ~~~~ java
    lens.get(lens.set(a, s)) == a
-   ```
+   ~~~~
 
 3. **Set-Set**: Setting twice is the same as setting once with the final value.
-   ```java
+   ~~~~ java
    lens.set(a2, lens.set(a1, s)) == lens.set(a2, s)
-   ```
+   ~~~~
 
 These laws aren't just theoretical; they form the guarantee that lenses behave like mathematical getters and setters. The annotation processor generates lenses that will satisfy these laws automatically.
 
@@ -220,7 +233,7 @@ Where lenses focus on fields that always exist (product types), prisms focus on 
 
 Consider a sealed interface:
 
-```java
+~~~~ java
 public sealed interface Shape permits Circle, Rectangle, Triangle {}
 
 @GenerateLenses
@@ -231,7 +244,7 @@ public record Rectangle(double width, double height) implements Shape {}
 
 @GenerateLenses
 public record Triangle(double a, double b, double c) implements Shape {}
-```
+~~~~
 
 Given a `Shape`, we don't know which variant it is. A prism for `Circle` must handle the possibility that the shape isn't a circle at all.
 
@@ -239,29 +252,29 @@ Given a `Shape`, we don't know which variant it is. A prism for `Circle` must ha
 
 The `@GeneratePrisms` annotation on a sealed interface generates prisms for each permitted subtype:
 
-```java
+~~~~ java
 import org.higherkindedj.optics.annotations.GeneratePrisms;
 
 @GeneratePrisms
 public sealed interface Shape permits Circle, Rectangle, Triangle {}
-```
+~~~~
 
 This generates:
 
-```java
+~~~~ java
 // Generated: ShapePrisms.java
 public final class ShapePrisms {
     public static Prism<Shape, Circle> circle() { ... }
     public static Prism<Shape, Rectangle> rectangle() { ... }
     public static Prism<Shape, Triangle> triangle() { ... }
 }
-```
+~~~~
 
 ### Using Prisms
 
 Prisms provide different operations than lenses, reflecting their optional nature:
 
-```
+~~~~
                           match (might fail)
     ┌───────────┐     ─────────────────────▶     ┌───────────┐
     │   Shape   │        Optional<Circle>        │  Circle   │
@@ -271,9 +284,9 @@ Prisms provide different operations than lenses, reflecting their optional natur
          ├─── Circle ──┐                               │
          ├─── Rectangle│  (only one variant matches)   │
          └─── Triangle─┘                               │
-```
+~~~~
 
-```java
+~~~~ java
 Prism<Shape, Circle> circlePrism = ShapePrisms.circle();
 
 // getOptional: extract the variant if it matches
@@ -287,7 +300,7 @@ boolean isCircle = circlePrism.matches(shape);
 
 // modify: transform if it matches, leave unchanged otherwise
 Shape doubled = circlePrism.modify(c -> new Circle(c.radius() * 2), shape);
-```
+~~~~
 
 The `modify` on a prism is particularly elegant: it applies the transformation only if the prism matches, otherwise returning the original value unchanged. No explicit pattern matching is required.
 
@@ -295,7 +308,7 @@ The `modify` on a prism is particularly elegant: it applies the transformation o
 
 Prisms compose with lenses to reach into variant-specific fields:
 
-```java
+~~~~ java
 // Prism: Shape → Circle, then Lens: Circle → radius
 Prism<Shape, Circle> circlePrism = ShapePrisms.circle();
 Lens<Circle, Double> radiusLens = CircleLenses.radius();
@@ -309,7 +322,7 @@ Optional<Double> radius = shapeRadius.getOptional(shape);
 
 // Double the radius if it's a circle
 Shape modified = shapeRadius.modify(r -> r * 2, shape);
-```
+~~~~
 
 Notice the type: composing a `Prism` with a `Lens` yields an `Affine`. This reflects the reality: we might find zero elements (if it's not a circle) or one element (if it is). The affine handles both cases elegantly.
 
@@ -317,7 +330,7 @@ Notice the type: composing a `Prism` with a `Lens` yields an `Affine`. This refl
 
 Prisms provide type-safe downcasting without the need for explicit `instanceof` checks:
 
-```java
+~~~~ java
 // Traditional approach
 if (shape instanceof Circle circle) {
     return new Circle(circle.radius() * 2);
@@ -326,7 +339,7 @@ return shape;
 
 // Prism approach
 return circlePrism.modify(c -> new Circle(c.radius() * 2), shape);
-```
+~~~~
 
 The prism version is more composable. You can store it, pass it around, and combine it with other optics, something you can't do with an `instanceof` expression.
 
@@ -340,7 +353,7 @@ Traversals generalise lenses to focus on zero or more values simultaneously. The
 
 Higher-Kinded-J provides a built-in traversal for lists:
 
-```java
+~~~~ java
 Traversal<List<String>, String> listTraversal = Traversals.forList();
 
 List<String> names = List.of("alice", "bob", "charlie");
@@ -352,13 +365,13 @@ List<String> uppercased = Traversals.modify(listTraversal, String::toUpperCase, 
 // Get all elements (as a list)
 List<String> all = Traversals.getAll(listTraversal, names);
 // ["alice", "bob", "charlie"]
-```
+~~~~
 
 ### Composing Traversals for Nested Collections
 
 We can go even further composing traversals with lenses to reach into nested structures:
 
-```java
+~~~~ java
 // Lens: Department → List<Employee>
 Lens<Department, List<Employee>> staffLens = DepartmentLenses.staff();
 
@@ -384,7 +397,7 @@ Department updated = Traversals.modify(allStaffStreets, s -> s + " (relocated)",
 
 // Collect all streets
 List<String> streets = Traversals.getAll(allStaffStreets, dept);
-```
+~~~~
 
 One composed traversal replaces what would otherwise be nested loops with manual reconstruction at each level.
 
@@ -392,19 +405,20 @@ One composed traversal replaces what would otherwise be nested loops with manual
 
 Sometimes you want to focus on only a subset of elements. The `filtered` method creates a traversal that only matches elements satisfying a predicate:
 
-```java
+~~~~ java
 // Only employees in Newcastle
 Traversal<List<Employee>, Employee> newcastleStaff =
     Traversals.<Employee>forList()
         .filtered(e -> e.address().city().equals("Newcastle"));
 
-// Give Newcastle staff a pay rise
-List<Employee> updated = Traversals.modify(
-    newcastleStaff,
-    e -> new Employee(e.id(), e.name(), e.address(), e.salary().multiply(new BigDecimal("1.1"))),
-    employees
-);
-```
+// Give Newcastle employees a 10% raise
+Traversal<List<Employee>, BigDecimal> newcastleSalaries =
+    newcastleEmployees.andThen(EmployeeLenses.salary().asTraversal());
+
+List<Employee> afterRaise =
+    Traversals.modify(
+        newcastleSalaries, sal -> sal.multiply(new BigDecimal("1.10")), employees);
+~~~~
 
 Filters compose naturally with other optics, enabling precise targeting deep within structures.
 
@@ -414,14 +428,14 @@ Traversals support folding, which aggregates all focused values into a single re
 
 **What is a Fold?** A fold combines multiple values into one. In Java, we use this pattern all the time:
 
-```java
+~~~~ java
 // This is a fold using Stream API
 int sum = numbers.stream().reduce(0, Integer::sum);
-```
+~~~~
 
 Optics bring this same power to nested structures. The `Traversals` utility class provides folding operations:
 
-```java
+~~~~ java
 // Collect all focused values into a list
 List<Double> allSalaries = Traversals.getAll(allStaffSalaries, department);
 
@@ -436,7 +450,7 @@ long count = allSalaries.size();
 Set<String> uniqueCities = Traversals.getAll(allStaffCities, department)
     .stream()
     .collect(Collectors.toSet());
-```
+~~~~
 
 **Understanding Monoids (the Java way):** The term "monoid" might sound unfamiliar, but you use them daily:
 
@@ -462,7 +476,7 @@ In Higher-Kinded-J, we use `asTraversal()` to convert lenses and prisms before c
 
 In practice, you'll build paths incrementally:
 
-```java
+~~~~ java
 // Company → departments (lens to list)
 // → each department (traversal over list)
 // → manager (lens to employee)
@@ -478,13 +492,13 @@ Traversal<Company, String> allManagerCities =
 
 // Relocate all managers to Manchester
 Company relocated = Traversals.modify(allManagerCities, _ -> "Manchester", company);
-```
+~~~~
 
 ### Real-World Example: Updating Nested Orders
 
 Consider an e-commerce domain:
 
-```java
+~~~~ java
 @GenerateLenses
 public record Customer(String id, String name, List<Order> orders) {}
 
@@ -493,11 +507,11 @@ public record Order(String orderId, List<LineItem> items, OrderStatus status) {}
 
 @GenerateLenses
 public record LineItem(String productId, int quantity, BigDecimal price) {}
-```
+~~~~
 
 To apply a 10% discount to all items across all orders for a customer:
 
-```java
+~~~~ java
 // Manual approach: ~20 lines of nested loops and reconstruction
 
 // Optics approach: define the path once
@@ -514,7 +528,7 @@ Customer discounted = Traversals.modify(
     price -> price.multiply(new BigDecimal("0.90")),
     customer
 );
-```
+~~~~
 
 The path is declarative and reusable. Need to calculate the total value? Use the same path with `Traversals.getAll()` and standard Java streams.
 
@@ -526,7 +540,7 @@ So far, our optics have performed pure transformations. But real applications ne
 
 Higher-Kinded-J's optics support *effect-polymorphic* operations through `modifyF`:
 
-```java
+~~~~ java
 // Pure modification
 Employee updated = streetLens.modify(String::toUpperCase, employee);
 
@@ -543,7 +557,7 @@ Either<ValidationError, Employee> checked = streetLens.modifyF(
     street -> validateStreet(street),
     employee
 );
-```
+~~~~
 
 The same optic (the same composed path) works with any effect. This is the power of higher-kinded types: abstracting over the computational context.
 
@@ -553,7 +567,7 @@ We'll explore `modifyF` fully in Article 5, where we'll use it for type-checking
 
 The optics we're learning in this article form the foundation. But Higher-Kinded-J also provides something even more ergonomic: the **Focus DSL**. With `@GenerateFocus` annotations, you can write fluent navigation chains like:
 
-```java
+~~~~ java
 // Instead of manually composing lenses:
 Lens<Employee, String> streetLens =
     EmployeeLenses.address().andThen(AddressLenses.street());
@@ -561,13 +575,13 @@ String street = streetLens.get(employee);
 
 // With Focus DSL:
 String street = EmployeeFocus.address().street().get(employee);
-```
+~~~~
 
 The Focus DSL wraps optics in path types (`FocusPath`, `AffinePath`, `TraversalPath`) that enable fluent cross-type navigation. When navigators are enabled, you chain directly through nested types without explicit composition.
 
 We'll introduce the Focus DSL properly in Article 3 and use it extensively from Article 4 onwards. For now, understanding the underlying optics gives you the conceptual foundation that makes the DSL's elegance possible.
 
-```java 
+~~~~ java 
 MaybePath<String> maybeEmail = emailPath.toMaybePath(user)
     .map(String::toLowerCase)
     .filter(e -> e.contains("@"));
@@ -575,7 +589,7 @@ MaybePath<String> maybeEmail = emailPath.toMaybePath(user)
 // Or use ValidationPath for comprehensive error checking
 ValidationPath<List<Error>, String> validated = emailPath.toValidationPath(user)
     .via(email -> validateEmail(email));
-```
+~~~~
 
 The [Effect Path API](https://higher-kinded-j.github.io/v0.3.0/effect/ch_intro.html) becomes the primary focus in Article 5, where we use it for type checking with error accumulation and interpretation with state. The combination of Focus paths (for navigation) with Effect paths (for computation) gives you a complete toolkit for data-oriented programming.
 
@@ -585,7 +599,7 @@ The [Effect Path API](https://higher-kinded-j.github.io/v0.3.0/effect/ch_intro.h
 
 Starting in the next Article 3, we'll build an expression language interpreter, the canonical showcase for optics. Here's a preview of the domain:
 
-```java
+~~~~ java
 @GeneratePrisms
 public sealed interface Expr {
     @GenerateLenses record Literal(Object value) implements Expr {}
@@ -595,7 +609,7 @@ public sealed interface Expr {
 }
 
 public enum BinaryOp { ADD, SUB, MUL, DIV, EQ, LT, GT, AND, OR }
-```
+~~~~
 
 This domain showcases every optic type:
 
@@ -671,4 +685,7 @@ In Article 3, we'll apply these fundamentals to build the expression language AS
 
 ---
 
-*Next: [Article 3: Optics in Practice: An Expression Language AST](article-3-ast-basic-optics.md)*
+
+### Next time
+
+Next time we will look at how we apply optics in a real domain by starting to build a complete expression language with parsing, type checking, optimisation, and interpretation.

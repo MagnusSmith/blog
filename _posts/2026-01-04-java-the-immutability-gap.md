@@ -1,13 +1,12 @@
 ---
-title: The Immutability Gap - Why Java Records Need Optics
+title: Functional Optics for Modern Java - Part 1
 date: 2026-01-04 00:00:00 Z
 categories:
 - Tech
 tags:
 - Java, Functional Programming, Optics
 author: magnussmith
-summary: In this post we look at how although Java 25 embraces immutability with records and pattern matching. 
-  When it comes to nested data pattern matching solves *reading* nested data, but provides no help for *writing*. 
+summary: Java 25 embraces immutability with records and pattern matching. When it comes to nested data then pattern matching solves reading nested data, but provides no help for writing. 
 image: magnussmith/assets/java.jpg
 ---
 
@@ -628,4 +627,6 @@ By the end of this series, you'll not want to update nested data manually again.
 
 ---
 
-*Next: [Part 2: Optics Fundamentals](article-2-optics-fundamentals.md)*
+### Next time
+
+Next time we dig into the three main optics: lenses, prisms and traversals.  [Part 2: Optics Fundamentals](article-2-optics-fundamentals.md)*
