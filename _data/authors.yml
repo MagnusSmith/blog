@@ -1100,7 +1100,8 @@ authors:
     picture: picture.jpg
   magnussmith:
     name: "Magnus Smith"
-    author-summary: "<p>Lead Developer at Scott Logic, based in Newcastle. I've 25 years working with Java and passionate about modern JVM technologies.</p>"
+    author-summary: "<p>Lead Developer at Scott Logic, Creator of <a href=\"https://https://higher-kinded-j.github.io/\">Higher-Kinded-J</a>. I've 25 years working with Java and passionate about modern JVM technologies.</p>"
+    twitter-handle: ultramagn3tic
     twitter-url: "https://bsky.app/profile/ultramagn3tic.bsky.social"
     picture: picture.jpg
   hashbyha:
