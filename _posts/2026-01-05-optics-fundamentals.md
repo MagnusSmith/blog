@@ -11,7 +11,7 @@ image: magnussmith/assets/java.jpg
 ---
 
 
-# Optics Fundamentals: Lenses, Prisms, and Traversals in Practice
+# Optics: Lenses, Prisms, and Traversals in Practice
 
 *Part 2 of the Functional Optics for Modern Java series*
 
@@ -24,7 +24,7 @@ Now it's time to get practical. This article dives deep into the three core opti
 ## Setting Up Higher-Kinded-J
 
 Before we explore optics in depth, let's configure our project to use Higher-Kinded-J's annotation-driven generation.  
-To follow along you will need Java 25 and if you are using Gradle 9.2.1 or newer.
+To follow along you will need Java 25 and if you are using Gradle, then 9.2.1 or newer.
 
 ### Gradle Configuration
 
@@ -101,13 +101,13 @@ With the dependencies in place, we're ready to explore each optic type in depth.
 
 **[All code examples in this article have runnable demos in the companion code:](https://github.com/higher-kinded-j/expression-language-example)**
 
-- **[LensDemo](https://github.com/higher-kinded-j/expression-language-example/src/main/java/org/higherkindedj/article2/demo/LensDemo.java)**: Basic lens operations and composition
-- **[PrismDemo](https://github.com/higher-kinded-j/expression-language-example/src/main/java/org/higherkindedj/article2/demo/PrismDemo.java)**: Prism operations and type-safe downcasting
-- **[TraversalDemo](https://github.com/higher-kinded-j/expression-language-example/src/main/java/org/higherkindedj/article2/demo/TraversalDemo.java)**: List traversals and filtering
-- **[CompositionDemo](https://github.com/higher-kinded-j/expression-language-example/src/main/java/org/higherkindedj/article2/demo/CompositionDemo.java)**: Deep path composition for nested updates
-- **[ExpressionPreviewDemo](https://github.com/higher-kinded-j/expression-language-example/src/main/java/org/higherkindedj/article2/demo/ExpressionPreviewDemo.java)**: Preview of the expression language from Article 3
+- **[LensDemo](https://github.com/higher-kinded-j/expression-language-example/blob/main/src/main/java/org/higherkindedj/article2/demo/LensDemo.java)**: Basic lens operations and composition
+- **[PrismDemo](https://github.com/higher-kinded-j/expression-language-example/blob/main/src/main/java/org/higherkindedj/article2/demo/PrismDemo.java)**: Prism operations and type-safe downcasting
+- **[TraversalDemo](https://github.com/higher-kinded-j/expression-language-example/blob/main/src/main/java/org/higherkindedj/article2/demo/TraversalDemo.java)**: List traversals and filtering
+- **[CompositionDemo](https://github.com/higher-kinded-j/expression-language-example/blob/main/src/main/java/org/higherkindedj/article2/demo/CompositionDemo.java)**: Deep path composition for nested updates
+- **[ExpressionPreviewDemo](https://github.com/higher-kinded-j/expression-language-example/blob/main/src/main/java/org/higherkindedj/article2/demo/ExpressionPreviewDemo.java)**: Preview of the expression language from Article 3
 
-The domain classes use Higher-Kinded-J's annotation-driven generation, defined in [`org.higherkindedj.article2.domain`](https://github.com/higher-kinded-j/expression-language-example/src/main/java/org/higherkindedj/article2/domain/).
+The domain classes use Higher-Kinded-J's annotation-driven generation, defined in [`org.higherkindedj.article2.domain`](https://github.com/higher-kinded-j/expression-language-example/blob/main/src/main/java/org/higherkindedj/article2/domain/).
 
 ---
 
