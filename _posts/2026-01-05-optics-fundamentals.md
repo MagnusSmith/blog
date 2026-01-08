@@ -667,8 +667,6 @@ In Part 3, we'll apply these fundamentals to build the expression language AST, 
 
 ### Critical Perspectives
 
-- **Alexis King, ["Optics are monoids"](https://www.tweag.io/blog/2022-05-05-optics-are-monoids/)** (Tweag, 2022): A deeper look at the mathematical structure underlying optics, useful for understanding why composition "just works".
-
 - The optics learning curve is real. Some practitioners argue that pattern matching (as Java 25 provides) handles 80% of cases more readably. Optics shine for the remaining 20%: deep updates, reusable paths, and effect-polymorphic traversals.
 
 ### Higher-Kinded-J
@@ -685,4 +683,4 @@ In Part 3, we'll apply these fundamentals to build the expression language AST, 
 
 ### Next time
 
-Next time we will look at how we apply optics in a real domain by starting to build a complete expression language with parsing, type checking, optimisation, and interpretation.
+Next time in Part 3 we will look at how we apply optics in a real domain by starting to build a complete expression language with parsing, type checking, optimisation, and interpretation.
