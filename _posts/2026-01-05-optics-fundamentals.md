@@ -667,7 +667,7 @@ In Part 3, we'll apply these fundamentals to build the expression language AST, 
 
 ### Critical Perspectives
 
-- The optics learning curve is real. Some practitioners argue that pattern matching (as Java 25 provides) handles 80% of cases more readably. Optics shine for the remaining 20%: deep updates, reusable paths, and effect-polymorphic traversals.
+The optics learning curve is real. Some practitioners argue that pattern matching (as Java 25 provides) handles 80% of cases more readably. Optics shine for the remaining 20%: deep updates, reusable paths, and effect-polymorphic traversals.
 
 ### Higher-Kinded-J
 
