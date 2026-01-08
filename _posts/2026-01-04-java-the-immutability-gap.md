@@ -6,7 +6,7 @@ categories:
 tags:
 - Java, Functional Programming, Optics
 author: magnussmith
-summary: Java 25 embraces immutability with records and pattern matching. When it comes to nested data then pattern matching solves reading nested data, but provides no help for writing. 
+summary: Java 25 embraces immutability with records and pattern matching. When it comes to deeply nested data then pattern matching solves reading, but provides no help for writing. 
 image: magnussmith/assets/java.jpg
 ---
 
@@ -27,7 +27,7 @@ Throughout this series, we use [Higher-Kinded-J](https://github.com/higher-kinde
 
 The first half of this series focuses on [Optics](https://higher-kinded-j.github.io/v0.3.0/optics/ch1_intro.html): lenses, prisms, and traversals. The second half introduces the [Effect Path API](https://higher-kinded-j.github.io/v0.3.0/effect/ch_intro.html), showing how navigation and computation work together. By the end, you will have a complete toolkit for data-oriented programming in Java.
 
-**A note on philosophy**: Many functional libraries in Java are ports of Haskell or Scala libraries, bringing foreign idioms that feel awkward in Java code. Higher-Kinded-J takes a different approach: *Java first*. We adopt good ideas from other languages, but this is a Java functional library designed to take advantage of modern Java—records, sealed interfaces, pattern matching, and annotation processing. Higher-Kinded-J is not an imitation; it's functional programming that feels native to Java.
+**A note on philosophy**: Many functional libraries in Java are ports of Haskell or Scala libraries, bringing foreign idioms that feel awkward in Java code. Higher-Kinded-J takes a different approach: *Java first*. Adopt good ideas from other languages, but this is a Java functional library designed to take advantage of modern Java: records, sealed interfaces, pattern matching, and annotation processing. Higher-Kinded-J is not an imitation; it's functional programming that feels native to Java.
 
 ---
 
@@ -306,6 +306,7 @@ record Rectangle(double width, double height) implements Shape {}
 ~~~~
 
 A prism for `Circle` provides two operations:
+
 - **Match**: Extract the `Circle` from a `Shape`, if it is one (returning `Optional`)
 - **Build**: Construct a `Shape` from a `Circle` (always succeeds)
 
@@ -561,12 +562,12 @@ As introduced at the start, Higher-Kinded-J unifies optics and effects. For opti
 
 - **Production-ready optics**: Lens, Prism, Affine, Traversal, Iso, and more, with proper composition and laws
 - **Annotation-driven generation**: `@GenerateLenses`, `@GeneratePrisms`, and `@GenerateFocus` eliminate boilerplate
-- **[The Focus DSL](https://higher-kinded-j.github.io/latest/optics/ch4_intro.html)**: A fluent API for navigation without explicit composition
+- **[The Focus DSL](https://higher-kinded-j.github.io/v0.3.0/optics/ch4_intro.html)**: A fluent API for navigation without explicit composition
 - **Zero runtime overhead**: All the abstraction happens at compile time
 
 For effects (covered from Part 5 onwards):
 
-- **[Effect Path API](https://higher-kinded-j.github.io/latest/effect/ch_intro.html)**: MaybePath, EitherPath, ValidationPath, TryPath, IOPath
+- **[Effect Path API](https://higher-kinded-j.github.io/v0.3.0/effect/ch_intro.html)**: MaybePath, EitherPath, ValidationPath, TryPath, IOPath
 - **Railway-style error handling**: Explicit success/failure tracks with composition
 - **Bridge methods**: Seamlessly connect Focus paths to Effect paths
 
@@ -576,7 +577,8 @@ You don't need to understand higher-kinded types to use the library effectively.
 
 ### The Road Ahead
 
-Next time, we'll dive deeper into optics fundamentals:
+Next time, in Part 2 we'll dive deeper into optics fundamentals:
+
 - Lens laws and why they matter for correctness
 - Prisms for sum types and sealed interfaces
 - Affines for optional values
@@ -591,15 +593,13 @@ By the end of this series, you'll not want to update nested data manually again.
 
 ## Article Code
 
-**[You can see the full runnable Java code from the example](https://github.com/higher-kinded-j/expression-language-example)**
+**[You can see the full runnable Java code from the examples](https://github.com/higher-kinded-j/expression-language-example)**
 
 ---
 
 ## Further Reading
 
 ### Data-Oriented Programming in Java
-
-- **Chris Kiehl, [*Data-Oriented Programming in Java*](https://www.manning.com/books/data-oriented-programming-in-java)** (Manning): A practical guide to DOP in modern Java, covering records, sealed types, and functional patterns.
 
 - **Brian Goetz, ["Data-Oriented Programming in Java"](https://www.infoq.com/articles/data-oriented-programming-java/)** (InfoQ, 2022): Goetz's foundational article explaining the philosophy behind Java's DOP features.
 
@@ -609,15 +609,18 @@ By the end of this series, you'll not want to update nested data manually again.
 
 - **[JEP 468: Derived Record Creation (Preview)](https://openjdk.org/jeps/468)**: The `with` expression for records (preview in JDK 25), addressing single-level updates (though not nested ones).
 
+- **Chris Kiehl, [*Data-Oriented Programming in Java*](https://www.manning.com/books/data-oriented-programming-in-java)** (Manning): A practical guide to DOP in modern Java, covering records, sealed types, and functional patterns.
+
+
 ### The Broader DOP Philosophy
 
-- **Eric Normand, *Grokking Simplicity*** (Manning, 2021): An accessible introduction to functional thinking and data-oriented design from the Clojure perspective.
+- **Eric Normand, [Grokking Simplicity](https://www.manning.com/books/grokking-simplicity)** (Manning, 2021): An accessible introduction to functional thinking and data-oriented design from the Clojure perspective.
 
 - **Rich Hickey, ["The Value of Values"](https://www.infoq.com/presentations/Value-Values/)** (Strange Loop, 2012): The influential talk that shaped modern thinking about immutable data, from Clojure's creator.
 
 ### Higher-Kinded-J
 
-- **[Higher-Kinded-J GitHub Repository](https://github.com/higher-kinded-j/higher-kinded-j)**: Source code, documentation, and examples.
+- **[Higher-Kinded-J](https://higher-kinded-j.github.io)**: Source code, documentation, and examples.
 
 - **[Optics Introduction](https://higher-kinded-j.github.io/v0.3.0/optics/ch1_intro.html)**: API reference for lenses, prisms, and traversals.
 
@@ -629,4 +632,4 @@ By the end of this series, you'll not want to update nested data manually again.
 
 ### Next time
 
-Next time we dig into the three main optics: lenses, prisms and traversals.  [Part 2: Optics Fundamentals](article-2-optics-fundamentals.md)*
+Next time we dig into the three main optics: lenses, prisms, and traversals.  [Part 2: Optics Fundamentals]({{site.baseurl}}/2026/01/05/article-2-optics-fundamentals.html)
