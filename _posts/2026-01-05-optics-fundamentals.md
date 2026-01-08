@@ -6,7 +6,7 @@ categories:
 tags:
 - Java, Functional Programming, Optics
 author: magnussmith
-summary: This article dives deep into the three core optic types:: lenses for product types, prisms for sum types, and traversals for collections 
+summary: This article dives deep into the three core optic types - lenses for product types, prisms for sum types, and traversals for collections 
 image: magnussmith/assets/java.jpg
 ---
 
