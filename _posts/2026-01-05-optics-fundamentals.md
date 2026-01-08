@@ -1,6 +1,6 @@
 ---
 title: Functional Optics for Modern Java - Part 2
-date: 2026-01-04 00:00:00 Z
+date: 2026-01-05 00:00:00 Z
 categories:
 - Tech
 tags:
