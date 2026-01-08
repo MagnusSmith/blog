@@ -15,7 +15,7 @@ image: magnussmith/assets/java.jpg
 
 *Part 2 of the Functional Optics for Modern Java series*
 
-In Article 1, we identified the immutability gap: modern Java excels at reading nested data through pattern matching, but provides no elegant solution for writing. We introduced optics as the missing piece: composable abstractions that treat access paths as first-class values.
+In [Part 1]({{site.baseurl}}/2026/01/04/java-the-immutability-gap.html), we identified the immutability gap: modern Java excels at reading nested data through pattern matching, but provides no elegant solution for writing. We introduced optics as the missing piece: composable abstractions that treat access paths as first-class values.
 
 Now it's time to get practical. This article dives deep into the three core optic types: lenses for product types, prisms for sum types, and traversals for collections. By the end, you'll understand not just how to use each, but when and why.
 
