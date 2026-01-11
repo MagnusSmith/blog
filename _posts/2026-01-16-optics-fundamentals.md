@@ -12,7 +12,7 @@ image: magnussmith/assets/java.jpg
 
 <style>
   /* Define a specific class for your diagrams */
-  .ascii-diagram pre, .ascii-diagram code {
+   pre, code {
       font-family: "SFMono-Regular", "Menlo", "Consolas", "Roboto Mono", "Droid Sans Mono", monospace;
       line-height: 1.5;
       
@@ -183,7 +183,6 @@ The `modify` operation is particularly powerful: it combines get and set in a si
 ### Lens Composition
 
 The real power emerges when you compose lenses. The `andThen` method chains lenses to reach deeper into nested structures:
-<div class="ascii-diagram">
 
 ~~~~ text
 ┌──────────────┐      ┌─────────────┐      ┌────────────┐
@@ -196,8 +195,6 @@ The real power emerges when you compose lenses. The `andThen` method chains lens
        └────────────────────┴────────────────────┘
                 employeeStreet (composed)
 ~~~~
-
-</div>
 
 ~~~~ java
 // Compose: Employee → Address → String
@@ -290,7 +287,6 @@ public final class ShapePrisms {
 ### Using Prisms
 
 Prisms provide different operations than lenses, reflecting their optional nature:
-<div class="ascii-diagram">
 
 ~~~~ text
                           match (might fail)
@@ -304,7 +300,6 @@ Prisms provide different operations than lenses, reflecting their optional natur
          └─── Triangle─┘                               │
 ~~~~
 
-</div>
 
 ~~~~ java
 Prism<Shape, Circle> circlePrism = ShapePrisms.circle();

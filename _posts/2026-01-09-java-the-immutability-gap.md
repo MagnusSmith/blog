@@ -14,7 +14,7 @@ image: magnussmith/assets/java.jpg
 
 <style>
   /* Define a specific class for your diagrams */
-  .ascii-diagram pre, .ascii-diagram code {
+   pre, code {
       font-family: "SFMono-Regular", "Menlo", "Consolas", "Roboto Mono", "Droid Sans Mono", monospace;
       line-height: 1.5;
       
@@ -349,7 +349,6 @@ Every employee's salary is updated. The traversal handled the iteration internal
 ### The Optics Hierarchy
 
 Optics form a hierarchy based on their focusing power. The diagram below shows how they relate. Read it from bottom to top: more specific optics (at the bottom) can always be used where more general ones (at the top) are expected.
-<div class="ascii-diagram">
 
 ~~~~ text
                   ┌─────────────┐
@@ -379,7 +378,6 @@ Optics form a hierarchy based on their focusing power. The diagram below shows h
         └───────────┘
 ~~~~ 
 
-</div>
 
 **Reading the diagram:**
 
