@@ -10,6 +10,18 @@ summary: This article dives deep into the three core optic types - lenses for pr
 image: magnussmith/assets/java.jpg
 ---
 
+<style>
+  /* Define a specific class for your diagrams */
+  .ascii-diagram pre, .ascii-diagram code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", "Roboto Mono", "Droid Sans Mono", monospace;
+      line-height: 1.5;
+      
+      /* The critical fix for Samsung/Android Chrome text inflation */
+      -webkit-text-size-adjust: 100%; 
+      text-size-adjust: 100%;
+      font-size: 1em; 
+  }
+</style>
 
 # Optics: Lenses, Prisms, and Traversals in Practice
 
@@ -94,7 +106,6 @@ With the dependencies in place, we're ready to explore each optic type in depth.
 ### Running the Examples
 
 
-
 ---
 
 ## Article Code
@@ -172,8 +183,9 @@ The `modify` operation is particularly powerful: it combines get and set in a si
 ### Lens Composition
 
 The real power emerges when you compose lenses. The `andThen` method chains lenses to reach deeper into nested structures:
+<div class="ascii-diagram">
 
-~~~~
+~~~~ text
 ┌──────────────┐      ┌─────────────┐      ┌────────────┐
 │   Employee   │─────▶│   Address   │─────▶│   String   │
 │              │      │             │      │  (street)  │
@@ -184,6 +196,7 @@ The real power emerges when you compose lenses. The `andThen` method chains lens
        └────────────────────┴────────────────────┘
                 employeeStreet (composed)
 ~~~~
+</div>
 
 ~~~~ java
 // Compose: Employee → Address → String
@@ -276,8 +289,9 @@ public final class ShapePrisms {
 ### Using Prisms
 
 Prisms provide different operations than lenses, reflecting their optional nature:
+<div class="ascii-diagram">
 
-~~~~
+~~~~ text
                           match (might fail)
     ┌───────────┐     ─────────────────────▶     ┌───────────┐
     │   Shape   │        Optional<Circle>        │  Circle   │
@@ -288,6 +302,7 @@ Prisms provide different operations than lenses, reflecting their optional natur
          ├─── Rectangle│  (only one variant matches)   │
          └─── Triangle─┘                               │
 ~~~~
+</div>
 
 ~~~~ java
 Prism<Shape, Circle> circlePrism = ShapePrisms.circle();

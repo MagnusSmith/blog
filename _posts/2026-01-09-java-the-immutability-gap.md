@@ -12,6 +12,19 @@ summary: Java 25 embraces immutability with records and pattern matching. When i
 image: magnussmith/assets/java.jpg
 ---
 
+<style>
+  /* Define a specific class for your diagrams */
+  .ascii-diagram pre, .ascii-diagram code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", "Roboto Mono", "Droid Sans Mono", monospace;
+      line-height: 1.5;
+      
+      /* The critical fix for Samsung/Android Chrome text inflation */
+      -webkit-text-size-adjust: 100%; 
+      text-size-adjust: 100%;
+      font-size: 1em; 
+  }
+</style>
+
 # The Immutability Gap: Why Java Records Need Optics
 
 *Part 1 of the Functional Optics for Modern Java series*
@@ -336,8 +349,9 @@ Every employee's salary is updated. The traversal handled the iteration internal
 ### The Optics Hierarchy
 
 Optics form a hierarchy based on their focusing power. The diagram below shows how they relate. Read it from bottom to top: more specific optics (at the bottom) can always be used where more general ones (at the top) are expected.
+<div class="ascii-diagram">
 
-~~~~ 
+~~~~ text
                   ┌─────────────┐
                   │  Traversal  │  Zero or more targets
                   │  (0..n)     │
@@ -364,6 +378,7 @@ Optics form a hierarchy based on their focusing power. The diagram below shows h
         │   (1↔1)   │
         └───────────┘
 ~~~~ 
+</div>
 
 **Reading the diagram:**
 
@@ -396,6 +411,7 @@ Both Affine and Prism focus on zero or one value, so what's the difference?
 **Affine**: Cannot construct, only access. Looking up a key in a map might fail, but you cannot "build" a map from a single value. Affines are for optional access without construction.
 
 The practical distinction:
+
 - **Use Prism** for sealed interface variants, enum cases, or any "is-a" relationship where you might want to construct the parent type
 - **Use Affine** for optional fields, map lookups, list indexing, or paths through a prism followed by a lens
 
