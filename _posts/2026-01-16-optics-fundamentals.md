@@ -641,7 +641,7 @@ In Part 3, we'll apply these fundamentals to build the expression language AST, 
 
 - **Julien Truffaut, [Monocle](https://www.optics.dev/Monocle/)**: Scala's premier optics library, with excellent documentation that bridges theory and practice.
 
-- **Simon Peyton Jones, ["Lenses: Compositional Data Access and Manipulation"](https://www.youtube.com/watch?v=k-QwBL9Dia0)** (Skills Matter, 2013): An accessible introduction to lens theory from one of functional programming's luminaries.
+- **Simon Peyton Jones, ["Lenses: Compositional Data Access and Manipulation"](https://www.youtube.com/watch?v=dxGaKn4REaY)** (Skills Matter, 2013): An accessible introduction to lens theory from one of functional programming's luminaries.
 
 ### Critical Perspectives
 
