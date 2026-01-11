@@ -637,11 +637,12 @@ In Part 3, we'll apply these fundamentals to build the expression language AST, 
 
 ### Optics Theory and History
 
+- **Edward Kmett, [Lenses: A Functional Imperative](https://www.youtube.com/watch?v=efv0SQNde5Q&list=PLEDE5BE0C69AF6CCE)** (BASE, 2011): An excellent, accessible introduction to lens theory in Scala.
+
 - **Edward Kmett, [lens library](https://hackage.haskell.org/package/lens)**: The Haskell library that established modern optics. Dense but comprehensive; the README alone is an education.
 
 - **Julien Truffaut, [Monocle](https://www.optics.dev/Monocle/)**: Scala's premier optics library, with excellent documentation that bridges theory and practice.
 
-- **Simon Peyton Jones, ["Lenses: Compositional Data Access and Manipulation"](https://www.youtube.com/watch?v=dxGaKn4REaY)** (Skills Matter, 2013): An accessible introduction to lens theory from one of functional programming's luminaries.
 
 ### Critical Perspectives
 
