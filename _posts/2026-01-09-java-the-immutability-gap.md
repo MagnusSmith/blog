@@ -13,7 +13,6 @@ image: magnussmith/assets/java.jpg
 ---
 
 <style>
-  /* Define a specific class for your diagrams */
    pre, code {
       font-family: "SFMono-Regular", "Menlo", "Consolas", "Roboto Mono", "Droid Sans Mono", monospace;
       line-height: 1.5;
