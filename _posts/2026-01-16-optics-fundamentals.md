@@ -11,15 +11,18 @@ image: magnussmith/assets/java.jpg
 ---
 
 <style>
-   pre, code {
-      font-family: "SFMono-Regular", "Menlo", "Consolas", "Roboto Mono", "Droid Sans Mono", monospace;
-      line-height: 1.5;
-      
-      /* The critical fix for Samsung/Android Chrome text inflation */
-      -webkit-text-size-adjust: 100%; 
-      text-size-adjust: 100%;
-      font-size: 1em; 
-  }
+/* 1. Load a high-quality monospace font from Google */
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400&display=swap');
+
+/* 2. Force ALL code blocks to use this font */
+code, pre {
+    font-family: 'JetBrains Mono', monospace !important;
+    font-size: 0.9em; /* Adjusts size slightly for readability */
+    
+    /* 3. The Android Fix: Stop the browser from inflating the text */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
 </style>
 
 # Optics: Lenses, Prisms, and Traversals in Practice
