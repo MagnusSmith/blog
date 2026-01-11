@@ -12,21 +12,6 @@ summary: Java 25 embraces immutability with records and pattern matching. When i
 image: magnussmith/assets/java.jpg
 ---
 
-<style>
-/* 1. Load a high-quality monospace font from Google */
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400&display=swap');
-
-/* 2. Force ALL code blocks to use this font */
-code, pre {
-    font-family: 'JetBrains Mono', monospace !important;
-    font-size: 0.9em; /* Adjusts size slightly for readability */
-    
-    /* 3. The Android Fix: Stop the browser from inflating the text */
-    -webkit-text-size-adjust: 100%;
-    text-size-adjust: 100%;
-}
-</style>
-
 # The Immutability Gap: Why Java Records Need Optics
 
 *Part 1 of the Functional Optics for Modern Java series*
@@ -352,34 +337,7 @@ Every employee's salary is updated. The traversal handled the iteration internal
 
 Optics form a hierarchy based on their focusing power. The diagram below shows how they relate. Read it from bottom to top: more specific optics (at the bottom) can always be used where more general ones (at the top) are expected.
 
-~~~~ text
-                  ┌─────────────┐
-                  │  Traversal  │  Zero or more targets
-                  │  (0..n)     │
-                  └──────┬──────┘
-                         │
-              ┌──────────┴──────────┐
-              │                     │
-       ┌──────┴──────┐       ┌──────┴──────┐
-       │   Affine    │       │    Fold     │  (read-only)
-       │   (0..1)    │       │             │
-       └──────┬──────┘       └─────────────┘
-              │
-    ┌─────────┴─────────┐
-    │                   │
-┌───┴───┐          ┌────┴────┐
-│ Lens  │          │  Prism  │
-│ (1)   │          │ (0..1)  │
-└───┬───┘          └────┬────┘
-    │                   │
-    └─────────┬─────────┘
-              │
-        ┌─────┴─────┐
-        │    Iso    │  Exactly one, reversible
-        │   (1↔1)   │
-        └───────────┘
-~~~~ 
-
+![jigOpticsHierachy.png]({{site.baseurl}}/magnussmith/assets/optics/jigOpticsHierachy.png "The optics Hierachy")
 
 **Reading the diagram:**
 

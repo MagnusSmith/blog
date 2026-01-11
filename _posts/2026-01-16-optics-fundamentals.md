@@ -10,21 +10,6 @@ summary: This article dives deep into the three core optic types - lenses for pr
 image: magnussmith/assets/java.jpg
 ---
 
-<style>
-/* 1. Load a high-quality monospace font from Google */
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400&display=swap');
-
-/* 2. Force ALL code blocks to use this font */
-code, pre {
-    font-family: 'JetBrains Mono', monospace !important;
-    font-size: 0.9em; /* Adjusts size slightly for readability */
-    
-    /* 3. The Android Fix: Stop the browser from inflating the text */
-    -webkit-text-size-adjust: 100%;
-    text-size-adjust: 100%;
-}
-</style>
-
 # Optics: Lenses, Prisms, and Traversals in Practice
 
 *Part 2 of the Functional Optics for Modern Java series*
@@ -186,17 +171,7 @@ The `modify` operation is particularly powerful: it combines get and set in a si
 
 The real power emerges when you compose lenses. The `andThen` method chains lenses to reach deeper into nested structures:
 
-~~~~ text
-┌──────────────┐      ┌─────────────┐      ┌────────────┐
-│   Employee   │─────▶│   Address   │─────▶│   String   │
-│              │      │             │      │  (street)  │
-└──────────────┘      └─────────────┘      └────────────┘
-       │                    │                    │
-       │    addressLens     │    streetLens      │
-       │                    │                    │
-       └────────────────────┴────────────────────┘
-                employeeStreet (composed)
-~~~~
+![ofLensComposition.png]({{site.baseurl}}/magnussmith/assets/optics/ofLensComposition.png "Lens Composition")
 
 ~~~~ java
 // Compose: Employee → Address → String
@@ -290,18 +265,7 @@ public final class ShapePrisms {
 
 Prisms provide different operations than lenses, reflecting their optional nature:
 
-~~~~ text
-                          match (might fail)
-    ┌───────────┐     ─────────────────────▶     ┌───────────┐
-    │   Shape   │        Optional<Circle>        │  Circle   │
-    │           │     ◀─────────────────────     │           │
-    └───────────┘        build (always works)    └───────────┘
-         │                                             │
-         ├─── Circle ──┐                               │
-         ├─── Rectangle│  (only one variant matches)   │
-         └─── Triangle─┘                               │
-~~~~
-
+![ofUsingPrisms.png]({{site.baseurl}}/magnussmith/assets/optics/ofUsingPrisms.png "Using Prisms")
 
 ~~~~ java
 Prism<Shape, Circle> circlePrism = ShapePrisms.circle();
