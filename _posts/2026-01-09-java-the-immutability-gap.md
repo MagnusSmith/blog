@@ -378,6 +378,7 @@ Optics form a hierarchy based on their focusing power. The diagram below shows h
         │   (1↔1)   │
         └───────────┘
 ~~~~ 
+
 </div>
 
 **Reading the diagram:**

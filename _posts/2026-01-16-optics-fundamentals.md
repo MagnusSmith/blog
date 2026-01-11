@@ -196,6 +196,7 @@ The real power emerges when you compose lenses. The `andThen` method chains lens
        └────────────────────┴────────────────────┘
                 employeeStreet (composed)
 ~~~~
+
 </div>
 
 ~~~~ java
@@ -302,6 +303,7 @@ Prisms provide different operations than lenses, reflecting their optional natur
          ├─── Rectangle│  (only one variant matches)   │
          └─── Triangle─┘                               │
 ~~~~
+
 </div>
 
 ~~~~ java
