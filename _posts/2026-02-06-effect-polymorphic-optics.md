@@ -92,7 +92,7 @@ Higher-Kinded-J provides many [Effect Path types](https://higher-kinded-j.github
 
 The `Path` factory class provides convenient constructors:
 
-```java
+~~~~ java
 import org.higherkindedj.hkt.effect.Path;
 
 // MaybePath
@@ -116,7 +116,7 @@ ValidationPath<List<Error>, User> invalid = Path.invalid(errors, Semigroups.list
 // IOPath (deferred execution)
 IOPath<String> readFile = Path.io(() -> Files.readString(path));
 IOPath<Unit> sideEffect = Path.ioRunnable(() -> System.out.println("Hello"));
-```
+~~~~
 
 ---
 
@@ -124,7 +124,7 @@ IOPath<Unit> sideEffect = Path.ioRunnable(() -> System.out.println("Hello"));
 
 `MaybePath<A>` represents a computation that might not produce a value. It wraps Higher-Kinded-J's `Maybe` type.
 
-```java
+~~~~ java
 MaybePath<String> greeting = Path.just("Hello")
     .map(String::toUpperCase)
     .filter(s -> s.length() > 3)
@@ -138,23 +138,23 @@ greeting.run().fold(
     () -> System.out.println("No value"),
     value -> System.out.println("Got: " + value)
 );
-```
+~~~~
 
 ### Chaining with via
 
 The `via` method chains dependent computations:
 
-```java
+~~~~ java
 MaybePath<User> userPath = Path.just(userId)
     .via(id -> lookupUser(id))        // Returns MaybePath<User>
     .via(user -> validateUser(user)); // Returns MaybePath<User>
 
 // If any step returns nothing, the chain short-circuits
-```
+~~~~
 
 ### Converting to Other Effect Paths
 
-```java
+~~~~ java
 MaybePath<String> maybe = Path.just("hello");
 
 // To EitherPath (provide error for empty case)
@@ -166,7 +166,7 @@ TryPath<String> tryPath = maybe.toTryPath(() -> new NoSuchElementException());
 // To ValidationPath (provide error and semigroup)
 ValidationPath<List<Error>, String> validated =
     maybe.toValidationPath(List.of(new Error("missing")), Semigroups.list());
-```
+~~~~
 
 ---
 
@@ -174,7 +174,7 @@ ValidationPath<List<Error>, String> validated =
 
 `EitherPath<E, A>` represents a computation that either succeeds with a value or fails with a typed error. Unlike exceptions, the error type is explicit in the signature.
 
-```java
+~~~~ java
 EitherPath<String, Integer> divide(int a, int b) {
     if (b == 0) {
         return Path.left("Division by zero");
@@ -191,11 +191,11 @@ result.run().fold(
     error -> System.out.println("Error: " + error),
     value -> System.out.println("Result: " + value)
 );
-```
+~~~~
 
 ### Error Transformation
 
-```java
+~~~~ java
 // Map over the error type
 EitherPath<Integer, String> withErrorCode =
     Path.<String, String>left("Not found")
@@ -210,7 +210,7 @@ EitherPath<String, Integer> recovered =
 EitherPath<String, Integer> fallback =
     Path.<String, Integer>left("Primary failed")
         .recoverWith(error -> fetchFromBackup());
-```
+~~~~
 
 ---
 
@@ -220,7 +220,7 @@ EitherPath<String, Integer> fallback =
 
 ![mfj-effect-polymorphic-2.png]({{site.baseurl}}/magnussmith/assets/optics/mfj-effect-polymorphic-2.png "EitherPath vs ValidationPath")
 
-```java
+~~~~ java
 // Define a semigroup constant to avoid repetition
 private static final Semigroup<List<String>> ERRORS = Semigroups.list();
 
@@ -248,7 +248,7 @@ ValidationPath<List<String>, String> validateEmail(String email) {
     }
     return Path.valid(email, ERRORS);
 }
-```
+~~~~
 
 Each validator returns a single error wrapped in a `List` because `ValidationPath` needs a `Semigroup` to combine errors from multiple validations. When two validations both fail, their `List<String>` errors are concatenated.
 
@@ -259,15 +259,15 @@ ValidationPath offers two composition modes:
 
 **Short-circuit** (via `via`): Stops at first error, like EitherPath
 
-```java
+~~~~ java
 // Sequential: second validation only runs if first succeeds
 ValidationPath<List<String>, User> sequential = validateName(name)
     .via(n -> validateAge(age).map(a -> new User(n, a, null)));
-```
+~~~~
 
 **Accumulating** (via `zipWithAccum`): Collects all errors
 
-```java
+~~~~ java
 // All validations run independently, errors accumulate
 ValidationPath<List<String>, User> accumulated = validateName(name)
                 .zipWith3Accum(
@@ -275,17 +275,17 @@ ValidationPath<List<String>, User> accumulated = validateName(name)
                         validateEmail(email),
                         (n, a, e) -> new User(n, a, e)
                 );
-```
+~~~~
 
 For two validations, use `zipWithAccum`:
 
-```java
+~~~~ java
 // Two-field example
 record Contact(String name, String email) {}
 
 ValidationPath<List<String>, Contact> contact = validateName(name)
     .zipWithAccum(validateEmail(email), Contact::new);
-```
+~~~~
 
 For three, use `zipWith3Accum` as shown above.
 
@@ -293,7 +293,7 @@ For three, use `zipWith3Accum` as shown above.
 
 ValidationPath requires a `Semigroup<E>` to combine errors. Higher-Kinded-J provides common semigroups:
 
-```java
+~~~~ java
 import org.higherkindedj.hkt.Semigroups;
 
 // List semigroup: concatenates lists
@@ -304,7 +304,7 @@ Semigroup<String> stringSemigroup = Semigroups.string();
 
 // Custom semigroup
 Semigroup<ErrorReport> reportSemigroup = (a, b) -> a.merge(b);
-```
+~~~~
 
 ---
 
@@ -312,7 +312,7 @@ Semigroup<ErrorReport> reportSemigroup = (a, b) -> a.merge(b);
 
 `TryPath<A>` wraps computations that might throw exceptions, converting them to values:
 
-```java
+~~~~ java
 // Wrap throwing code
 TryPath<Integer> parsed = Path.tryOf(() -> Integer.parseInt(userInput));
 
@@ -326,17 +326,17 @@ calculation.run().fold(
     value -> System.out.println("Result: " + value),
     ex -> System.out.println("Error: " + ex.getMessage())
 );
-```
+~~~~
 
 ### Recovery from Exceptions
 
-```java
+~~~~ java
 TryPath<Integer> withDefault = Path.tryOf(() -> Integer.parseInt(input))
     .recover(ex -> -1);  // Use -1 on parse failure
 
 TryPath<Integer> withFallback = Path.tryOf(() -> fetchFromPrimary())
     .recoverWith(ex -> Path.tryOf(() -> fetchFromBackup()));
-```
+~~~~
 
 ---
 
@@ -344,7 +344,7 @@ TryPath<Integer> withFallback = Path.tryOf(() -> fetchFromPrimary())
 
 `IOPath<A>` represents a computation that will be executed later. Nothing happens until you call `unsafeRun()` or `runSafe()`.
 
-```java
+~~~~ java
 // Define computations without executing them
 IOPath<String> readConfig = Path.io(() -> Files.readString(configPath));
 IOPath<Unit> writeLog = Path.ioRunnable(() -> logger.info("Operation complete"));
@@ -357,13 +357,13 @@ IOPath<Config> loadConfig = readConfig
 // Execute when ready
 Config config = loadConfig.unsafeRun();  // Throws on error
 Try<Config> safe = loadConfig.runSafe(); // Captures exceptions
-```
+~~~~
 
 ### Resource Management
 
 IOPath provides safe resource handling with `bracket` and `withResource`:
 
-```java
+~~~~ java
 // Bracket pattern: acquire, use, release
 IOPath<String> content = IOPath.bracket(
     () -> Files.newBufferedReader(path),  // Acquire
@@ -376,11 +376,11 @@ IOPath<String> simpler = IOPath.withResource(
     () -> Files.newBufferedReader(path),
     reader -> reader.lines().collect(Collectors.joining("\n"))
 );
-```
+~~~~
 
 ### Parallel Execution and Retry
 
-```java
+~~~~ java
 // Run two computations in parallel
 IOPath<UserProfile> profile = fetchUser.parZipWith(
     fetchOrders,
@@ -390,7 +390,7 @@ IOPath<UserProfile> profile = fetchUser.parZipWith(
 // Retry with exponential backoff
 IOPath<String> resilient = Path.io(() -> httpClient.get(url))
     .retry(3, Duration.ofMillis(100));  // 3 attempts, 100ms initial delay
-```
+~~~~
 
 ---
 
@@ -398,7 +398,7 @@ IOPath<String> resilient = Path.io(() -> httpClient.get(url))
 
 `VTaskPath<A>` represents a computation that runs on Java's virtual threads. It brings the lightweight concurrency of Project Loom to the Effect Path API, letting you write simple blocking code that scales to millions of concurrent operations.
 
-```java
+~~~~ java
 // Create VTaskPaths
 VTaskPath<String> fetchUser = Path.vtask(() -> userService.get(userId));
 VTaskPath<String> fetchOrders = Path.vtask(() -> orderService.list(userId));
@@ -411,7 +411,7 @@ VTaskPath<String> failed = Path.vtaskFail(new IOException("Network error"));
 
 // From a Runnable
 VTaskPath<Unit> logAction = Path.vtaskExec(() -> logger.info("Starting..."));
-```
+~~~~
 
 ### Execution Model
 
@@ -419,30 +419,30 @@ Unlike `IOPath`, which runs on the caller's thread, `VTaskPath` executes on virt
 
 ![mfj-effect-polymorphic-3.png]({{site.baseurl}}/magnussmith/assets/optics/mfj-effect-polymorphic-3.png "VTask Execution Model")
 
-```java
+~~~~ java
 VTaskPath<Integer> task = Path.vtask(() -> expensiveComputation());
 
 // Three ways to execute
 Integer result = task.run();           // Blocks, may throw
 Try<Integer> safe = task.runSafe();    // Captures exceptions in Try
 CompletableFuture<Integer> future = task.runAsync();  // Non-blocking
-```
+~~~~
 
 ### Composition
 
 VTaskPath chains with the same `map` and `via` patterns as other Effect Paths:
 
-```java
+~~~~ java
 VTaskPath<Dashboard> dashboard = Path.vtask(() -> fetchUser(id))
     .map(user -> user.preferences())
     .via(prefs -> Path.vtask(() -> buildDashboard(prefs)));
-```
+~~~~
 
 ### Parallel Execution with Par
 
 The `Par` utility provides combinators for running VTasks concurrently:
 
-```java
+~~~~ java
 import org.higherkindedj.hkt.vtask.Par;
 
 // Combine two tasks in parallel
@@ -463,7 +463,7 @@ VTask<String> fastest = Par.race(List.of(
     VTask.of(() -> fetchFromMirror1()),
     VTask.of(() -> fetchFromMirror2())
 ));
-```
+~~~~
 
 ### Structured Concurrency with Scope
 
@@ -471,7 +471,7 @@ For more control over concurrent operations, use `Scope`. The three joiners dete
 
 ![mfj-effect-polymorphic-4.png]({{site.baseurl}}/magnussmith/assets/optics/mfj-effect-polymorphic-4.png "Scope Joiners")
 
-```java
+~~~~ java
 import org.higherkindedj.hkt.vtask.Scope;
 
 // Wait for all tasks to succeed
@@ -495,11 +495,11 @@ VTask<Validated<List<Error>, List<String>>> validated =
         .fork(validateField2())
         .fork(validateField3())
         .join();
-```
+~~~~
 
 ### Error Handling
 
-```java
+~~~~ java
 // Replace error with a default value
 VTaskPath<Config> withDefault = Path.vtask(() -> loadConfig())
                 .handleError(ex -> Config.defaults());
@@ -507,14 +507,14 @@ VTaskPath<Config> withDefault = Path.vtask(() -> loadConfig())
 // Or try a fallback task instead
 VTaskPath<Config> withFallback = Path.vtask(() -> loadConfig())
         .handleErrorWith(ex -> Path.vtask(() -> loadFallbackConfig()));
-```
+~~~~
 
 ### Timeouts
 
-```java
+~~~~ java
 VTaskPath<Data> withTimeout = Path.vtask(() -> slowOperation())
     .timeout(Duration.ofSeconds(5));
-```
+~~~~
 
 ### When to Use VTaskPath vs IOPath
 
@@ -538,7 +538,7 @@ The [Focus DSL](https://higher-kinded-j.github.io/latest/optics/ch4_intro.html) 
 
 ### From Focus Paths to Effect Paths
 
-```java
+~~~~ java
 // FocusPath to MaybePath (always succeeds since FocusPath has exactly one focus)
 FocusPath<User, String> namePath = UserFocus.name();
 MaybePath<String> name = namePath.toMaybePath(user);  // Always Just(value)
@@ -550,13 +550,13 @@ MaybePath<String> nickname = nicknamePath.toMaybePath(user);  // Just or Nothing
 // AffinePath to EitherPath (provide error for missing case)
 EitherPath<String, String> nicknameOrError =
     nicknamePath.toEitherPath(user, "No nickname set");
-```
+~~~~
 
 ### Applying Focus Paths Within Effect Contexts
 
 Effect Paths have a `focus` method that applies a FocusPath:
 
-```java
+~~~~ java
 // Start with an Effect Path containing a User
 EitherPath<Error, User> userPath = fetchUser(userId);
 
@@ -568,11 +568,11 @@ EitherPath<Error, String> emailPath = userPath.focus(UserFocus.email());
 EitherPath<Error, String> city = userPath
     .focus(UserFocus.address())
     .focus(AddressFocus.city());
-```
+~~~~
 
 For AffinePath (which might not find a value), provide an error:
 
-```java
+~~~~ java
 MaybePath<User> maybeUser = Path.just(user);
 MaybePath<String> nickname = maybeUser.focus(
     UserFocus.nickname()  // AffinePath for optional field
@@ -584,7 +584,7 @@ EitherPath<String, String> nickname = eitherUser.focus(
     UserFocus.nickname(),
     "User has no nickname"  // Error if absent
 );
-```
+~~~~
 
 ---
 
@@ -594,15 +594,15 @@ Let's apply the Effect Path API to our expression language. Type checking is a p
 
 ### Defining Types and Errors
 
-```java
+~~~~ java
 public enum Type { INT, BOOL, STRING }
 
 public record TypeError(String message) {}
-```
+~~~~
 
 ### The Type Checker
 
-```java
+~~~~ java
 public final class ExprTypeChecker {
 
     private static final Semigroup<List<TypeError>> ERRORS = Semigroups.list();
@@ -715,11 +715,11 @@ public final class ExprTypeChecker {
         return condCheck.zipWithAccum(branchCheck, (c, t) -> t);
     }
 }
-```
+~~~~
 
 ### Running the Type Checker
 
-```java
+~~~~ java
 // Expression with multiple errors: (1 + true) * (false && 42)
 Expr expr = new Binary(
     new Binary(new Literal(1), BinaryOp.ADD, new Literal(true)),
@@ -738,14 +738,14 @@ result.run().fold(
     },
     type -> System.out.println("Type: " + type)
 );
-```
+~~~~
 
 Output:
-```
+~~~~
 Type errors:
   - Arithmetic operator '+' requires INT operands, got INT and BOOL
   - Logical operator '&&' requires BOOL operands, got BOOL and INT
-```
+~~~~
 
 Both errors are reported in a single pass. The user can fix them both at once.
 
@@ -759,7 +759,7 @@ The Effect Path API is built on Higher-Kinded-J's type class hierarchy. Understa
 
 Every optic supports `modifyF`, which generalises modification to work with any effect:
 
-```java
+~~~~ java
 public interface Traversal<S, A> {
     <F extends WitnessArity<TypeArity.Unary>> Kind<F, S> modifyF(
         Function<A, Kind<F, A>> f,
@@ -767,7 +767,7 @@ public interface Traversal<S, A> {
         Applicative<F> applicative
     );
 }
-```
+~~~~ java
 
 The `Applicative<F>` parameter provides:
 
@@ -780,7 +780,7 @@ With just these operations, we can sequence independent computations while accum
 
 Each Effect Path type wraps a corresponding `Kind<F, A>`:
 
-```java
+~~~~ java
 // MaybePath wraps Kind<Maybe.Witness, A>
 MaybePath<String> maybePath = Path.just("hello");
 Maybe<String> underlying = maybePath.run();
@@ -788,7 +788,7 @@ Maybe<String> underlying = maybePath.run();
 // EitherPath wraps Kind<Either.Witness<E, ?>, A>
 EitherPath<String, Integer> eitherPath = Path.right(42);
 Either<String, Integer> underlying = eitherPath.run();
-```
+~~~~ 
 
 The Effect Path API provides ergonomic methods that delegate to these underlying types.
 
@@ -800,7 +800,7 @@ For most use cases, the Effect Path API suffices. Use `modifyF` directly when:
 - You need to work with custom effect types
 - You want maximum composability with optics
 
-```java
+~~~~ java
 // Using modifyF directly with a traversal
 TraversalPath<Company, Employee> allEmployees = CompanyFocus
     .departments().each()
@@ -811,7 +811,7 @@ Kind<ValidatedKind.Witness<List<Error>>, Company> result = allEmployees.modifyF(
     company,
     ValidatedApplicative.instance(Semigroups.list())
 );
-```
+~~~~
 
 ---
 
@@ -826,15 +826,15 @@ Higher-Kinded-J provides two levels of abstraction:
 
 ### High-Level: Effect Path API
 
-```java
+~~~~ java
 // Clear, fluent, discoverable
 ValidationPath<List<String>, User> validated = validateName(name)
                 .zipWith3Accum(validateAge(age), validateEmail(email), User::new);
-```
+~~~~
 
 ### Low-Level: modifyF with Applicative
 
-```java
+~~~~ java
 // Maximum control, composable with any optic
 Traversal<User, String> nameLens = UserLenses.name().asTraversal();
 Kind<ValidatedKind.Witness<List<Error>>, User> result = nameLens.modifyF(
@@ -842,7 +842,7 @@ Kind<ValidatedKind.Witness<List<Error>>, User> result = nameLens.modifyF(
     user,
     ValidatedApplicative.instance(Semigroups.list())
 );
-```
+~~~~ 
 
 Start with the Effect Path API. Drop to `modifyF` when you need its power.
 
@@ -886,6 +886,8 @@ The Effect Path API makes effect polymorphism practical. The same patterns that 
 
 ### Higher-Kinded-J
 
+- **[Effect Path API Guide](https://higher-kinded-j.github.io/latest/effect/ch_intro.html)**: Railway-style error handling with MaybePath, EitherPath, ValidationPath, and VTaskPath.
+
 - **[Effect Path API](https://github.com/higher-kinded-j/higher-kinded-j/tree/main/hkj-core/src/main/java/org/higherkindedj/hkt/effect)**: API reference for the Effect Path types.
 
 - **[Path Factory](https://github.com/higher-kinded-j/higher-kinded-j/blob/main/hkj-core/src/main/java/org/higherkindedj/hkt/effect/Path.java)**: Factory methods for creating Effect Paths.
@@ -893,8 +895,6 @@ The Effect Path API makes effect polymorphism practical. The same patterns that 
 - **[Semigroups](https://github.com/higher-kinded-j/higher-kinded-j/blob/main/hkj-core/src/main/java/org/higherkindedj/hkt/Semigroups.java)**: Common semigroup implementations for error accumulation.
 
 - **[Focus DSL Guide](https://higher-kinded-j.github.io/latest/optics/ch4_intro.html)**: Fluent navigation with FocusPath, AffinePath, and TraversalPath.
-
-- **[Effect Path API Guide](https://higher-kinded-j.github.io/latest/effect/ch_intro.html)**: Railway-style error handling with MaybePath, EitherPath, ValidationPath, and VTaskPath.
 
 - **[VTask and Structured Concurrency](https://higher-kinded-j.github.io/latest/monads/vtask_monad.html)**: Virtual thread concurrency with Scope and Resource.
 
