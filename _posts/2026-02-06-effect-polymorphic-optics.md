@@ -1,6 +1,6 @@
 ---
 title: Functional Optics for Modern Java - Part 5
-date: 2026-02-05 00:00:00 Z
+date: 2026-02-06 00:00:00 Z
 categories:
 - Tech
 tags:
@@ -20,7 +20,7 @@ we built our expression language AST and applied basic optics using lenses for f
 
 Real compilers and interpreters need more. Type checking should report *all* errors, not just the first one. Interpretation must track variable bindings as it descends through the tree. These are *effects*, and they change everything about how we should structure our code.
 
-Higher-Kinded-J provides the **[Effect Path API](https://higher-kinded-j.github.io/latest/effect/ch_intro.html)**: a fluent interface for computations that might fail, accumulate errors, or require deferred execution. This is the practical face of effect polymorphism, making powerful abstractions accessible through an ergonomic API.
+The **[Effect Path API](https://higher-kinded-j.github.io/latest/effect/ch_intro.html)** from Higher-Kinded-J provides a fluent interface for computations that might fail, accumulate errors, or require deferred execution. This is the practical face of effect polymorphism, making powerful abstractions accessible through an ergonomic API.
 
 ### Running the Examples
 
@@ -31,7 +31,7 @@ Higher-Kinded-J provides the **[Effect Path API](https://higher-kinded-j.github.
 **All code examples from this article have [runnable demos:](https://github.com/higher-kinded-j/expression-language-example)**
 
 - **[EffectPathDemo](https://github.com/higher-kinded-j/expression-language-example/blob/main/src/main/java/org/higherkindedj/article5/demo/EffectPathDemo.java)**: Demonstrates the Effect Path API.
-- **[EffectPolymorphicDemo](https://github.com/higher-kinded-j/expression-language-example/blob/main/src/main/java/org/higherkindedj/article45/demo/EffectPolymorphicDemo.java)**: Demonstrates effect-polymorphic optics using modifyF with different Higher-Kinded-J effects.
+- **[EffectPolymorphicDemo](https://github.com/higher-kinded-j/expression-language-example/blob/main/src/main/java/org/higherkindedj/article5/demo/EffectPolymorphicDemo.java)**: Demonstrates effect-polymorphic optics using modifyF with different Higher-Kinded-J effects.
 - **[InterpreterDemo](https://github.com/higher-kinded-j/expression-language-example/blob/main/src/main/java/org/higherkindedj/article5/demo/InterpreterDemo.java)**: Demonstrates expression interpretation using Higher-Kinded-J's State monad.
 - **[ParallelTypeCheckerDemo](https://github.com/higher-kinded-j/expression-language-example/blob/main/src/main/java/org/higherkindedj/article5/demo/ParallelTypeCheckerDemo.java)**: Constant folding, identity simplification, and cascading optimisation using traversal-based passes.
 - **[TypeCheckerDemo](https://github.com/higher-kinded-j/expression-language-example/blob/main/src/main/java/org/higherkindedj/article5/demo/TypeCheckerDemo.java)**: Demonstrates parallel type checking using VTask and Scope.
@@ -77,7 +77,7 @@ Ensuring failure is explicit in the type system has practical benefits:
 
 ## The Effect Path Types
 
-Higher-Kinded-J provides many [Effect Path types](https://higher-kinded-j.github.io/latest/effect/path_types.html), Here are six core types, each suited to different use cases:
+Higher-Kinded-J provides many [Effect Path types](https://higher-kinded-j.github.io/latest/effect/path_types.html); here are six core types, each suited to different use cases:
 
 | Effect Path | Contains | Use Case |
 |-------------|----------|----------|
@@ -767,7 +767,7 @@ public interface Traversal<S, A> {
         Applicative<F> applicative
     );
 }
-~~~~ java
+~~~~ 
 
 The `Applicative<F>` parameter provides:
 
@@ -867,13 +867,13 @@ The Effect Path API makes effect polymorphism practical. The same patterns that 
 
 ### Effect Systems and Functional Programming
 
-- **Scott Wlaschin, ["Railway Oriented Programming"](https://vimeo.com/97344498)[slides]("https://www.slideshare.net/slideshow/railway-oriented-programming/32242318#1")**: The visual explanation of error handling that inspired the railway metaphor.
+- **Scott Wlaschin, ["Railway Oriented Programming" video](https://vimeo.com/97344498) and [slides](https://www.slideshare.net/slideshow/railway-oriented-programming/32242318#1)**: The visual explanation of error handling that inspired the railway metaphor.
 
 - **Conor McBride & Ross Paterson, ["Applicative programming with effects"](https://www.staff.city.ac.uk/~ross/papers/Applicative.html)** (JFP, 2008): The paper that introduced `Applicative` as distinct from `Monad`, directly relevant to understanding why `Validated` accumulates errors.
 
 ### Error Handling Patterns
 
-- **[Handling Errors Without Exceptions]("https://www.manning.com/books/functional-programming-in-scala")**: Chapter 4 from "Functional Programming in Scala" (free excerpt).
+- **[Handling Errors Without Exceptions](https://www.manning.com/books/functional-programming-in-scala)**: Chapter 4 from "Functional Programming in Scala" (free excerpt).
 
 ### Higher-Kinded Types and Functional Abstractions
 
@@ -888,11 +888,9 @@ The Effect Path API makes effect polymorphism practical. The same patterns that 
 
 - **[Effect Path API Guide](https://higher-kinded-j.github.io/latest/effect/ch_intro.html)**: Railway-style error handling with MaybePath, EitherPath, ValidationPath, and VTaskPath.
 
-- **[Effect Path API](https://github.com/higher-kinded-j/higher-kinded-j/tree/main/hkj-core/src/main/java/org/higherkindedj/hkt/effect)**: API reference for the Effect Path types.
-
 - **[Path Factory](https://github.com/higher-kinded-j/higher-kinded-j/blob/main/hkj-core/src/main/java/org/higherkindedj/hkt/effect/Path.java)**: Factory methods for creating Effect Paths.
 
-- **[Semigroups](https://github.com/higher-kinded-j/higher-kinded-j/blob/main/hkj-core/src/main/java/org/higherkindedj/hkt/Semigroups.java)**: Common semigroup implementations for error accumulation.
+- **[Semigroups](https://github.com/higher-kinded-j/higher-kinded-j/blob/main/hkj-api/src/main/java/org/higherkindedj/hkt/Semigroups.java)**: Common semigroup implementations for error accumulation.
 
 - **[Focus DSL Guide](https://higher-kinded-j.github.io/latest/optics/ch4_intro.html)**: Fluent navigation with FocusPath, AffinePath, and TraversalPath.
 
