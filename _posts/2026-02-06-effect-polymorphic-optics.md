@@ -1,14 +1,12 @@
 ---
 title: Functional Optics for Modern Java - Part 5
-date: 2026-01-30 00:00:00 Z
+date: 2026-02-05 00:00:00 Z
 categories:
 - Tech
 tags:
 - Java, Functional Programming, Optics
 author: magnussmith
-summary: This time we examine how the Focus DSL lets you express complex tree traversals
-  and optimisations in fluent, composable chains; turning verbose recursion into declarative
-  paths like .departments().each().employees().each().salary().
+summary: This time we examine effect polymorphism and how effects structure our code with Higher-Kinded-J's Effect Path API; a fluent interface for computations that might fail, accumulate errors, or require deferred execution. 
 image: magnussmith/assets/mfj_logo.jpg
 ---
 
@@ -18,7 +16,7 @@ image: magnussmith/assets/mfj_logo.jpg
 
 In [Part 1]({{site.baseurl}}/2026/01/09/java-the-immutability-gap.html) and [Part 2]({{site.baseurl}}/2026/01/16/optics-fundamentals.html), 
 we established why optics matter and how they work. In [Part 3]({{site.baseurl}}/2026/01/23/ast-basic-optics.html),
-we built our expression language AST and applied basic optics using lenses for field access and prisms for variant matching. Last time in Part 4, we built traversals that visit every node in our expression tree. We implemented constant folding, identity simplification, and dead branch elimination. But all our transformations were pure: they took an expression and returned a new expression, with no side effects.
+we built our expression language AST and applied basic optics using lenses for field access and prisms for variant matching. Last time in [Part 4]({{site.baseurl}}/2026/01/30/traversals-rewrites.html), we built traversals that visit every node in our expression tree. We implemented constant folding, identity simplification, and dead branch elimination. But all our transformations were pure: they took an expression and returned a new expression, with no side effects.
 
 Real compilers and interpreters need more. Type checking should report *all* errors, not just the first one. Interpretation must track variable bindings as it descends through the tree. These are *effects*, and they change everything about how we should structure our code.
 
@@ -32,13 +30,12 @@ Higher-Kinded-J provides the **[Effect Path API](https://higher-kinded-j.github.
 
 **All code examples from this article have [runnable demos:](https://github.com/higher-kinded-j/expression-language-example)**
 
-- **[TraversalDemo](https://github.com/higher-kinded-j/expression-language-example/blob/main/src/main/java/org/higherkindedj/article4/demo/TraversalDemo.java)**: Using Higher-Kinded-J's Traversal interface for composable, type-safe tree manipulation.
-- **[OptimiserDemo](https://github.com/higher-kinded-j/expression-language-example/blob/main/src/main/java/org/higherkindedj/article4/demo/OptimiserDemo.java)**: Constant folding, identity simplification, and cascading optimisation using traversal-based passes.
-
-The AST types are defined in [`org.higherkindedj.article4.ast`](https://github.com/higher-kinded-j/expression-language-example/blob/main/src/main/java/org/higherkindedj/article4/ast/), with transformations in [`org.higherkindedj.article4.transform`](https://github.com/higher-kinded-j/expression-language-example/blob/main/src/main/java/org/higherkindedj/article4/transform/) and traversals in [`org.higherkindedj.article4.traversal`](https://github.com/higher-kinded-j/expression-language-example/blob/main/src/main/java/org/higherkindedj/article4/traversal/).
-
----
-
+- **[EffectPathDemo](https://github.com/higher-kinded-j/expression-language-example/blob/main/src/main/java/org/higherkindedj/article5/demo/EffectPathDemo.java)**: Demonstrates the Effect Path API.
+- **[EffectPolymorphicDemo](https://github.com/higher-kinded-j/expression-language-example/blob/main/src/main/java/org/higherkindedj/article45/demo/EffectPolymorphicDemo.java)**: Demonstrates effect-polymorphic optics using modifyF with different Higher-Kinded-J effects.
+- **[InterpreterDemo](https://github.com/higher-kinded-j/expression-language-example/blob/main/src/main/java/org/higherkindedj/article5/demo/InterpreterDemo.java)**: Demonstrates expression interpretation using Higher-Kinded-J's State monad.
+- **[ParallelTypeCheckerDemo](https://github.com/higher-kinded-j/expression-language-example/blob/main/src/main/java/org/higherkindedj/article5/demo/ParallelTypeCheckerDemo.java)**: Constant folding, identity simplification, and cascading optimisation using traversal-based passes.
+- **[TypeCheckerDemo](https://github.com/higher-kinded-j/expression-language-example/blob/main/src/main/java/org/higherkindedj/article5/demo/TypeCheckerDemo.java)**: Demonstrates parallel type checking using VTask and Scope.
+- **[VTaskPathDemo](https://github.com/higher-kinded-j/expression-language-example/blob/main/src/main/java/org/higherkindedj/article5/demo/VTaskPathDemo.java)**: Demonstrates VTaskPath for virtual thread-based concurrency.
 
 ---
 
@@ -66,7 +63,7 @@ The Effect Path API gives you these different assembly line configurations, lett
 
 Effect Paths follow the "railway" metaphor that was popularised by Scott Wlaschin. Values travel along tracks, and computations can switch between success and failure:
 
-![mfj-effect-polymorphic-1.png]({{site.baseurl}}/magnussmith/assets/optics/mfj-traversal-rewrite-1.png "Railway Model")
+![mfj-effect-polymorphic-1.png]({{site.baseurl}}/magnussmith/assets/optics/mfj-effect-polymorphic-1.png "Railway Model")
 
 The big idea here is that instead of throwing exceptions or returning null, Effect Paths make failure explicit in the type system. A `MaybePath<String>` might contain a string or might be empty. An `EitherPath<Error, User>` contains either an error or a user. A `ValidationPath<List<Error>, Form>` contains either accumulated errors or a valid form.
 
@@ -80,7 +77,7 @@ Ensuring failure is explicit in the type system has practical benefits:
 
 ## The Effect Path Types
 
-Higher-Kinded-J provides many [Effect Path types]("https://higher-kinded-j.github.io/latest/effect/path_types.html"), Here are six core types, each suited to different use cases:
+Higher-Kinded-J provides many [Effect Path types](https://higher-kinded-j.github.io/latest/effect/path_types.html), Here are six core types, each suited to different use cases:
 
 | Effect Path | Contains | Use Case |
 |-------------|----------|----------|
@@ -221,34 +218,40 @@ EitherPath<String, Integer> fallback =
 
 `ValidationPath<E, A>` is the key type for comprehensive error reporting. Unlike `EitherPath`, which stops at the first error, `ValidationPath` collects all errors.
 
-![mfj-effect-polymorphic-2.png]({{site.baseurl}}/magnussmith/assets/optics/mfj-traversal-rewrite-1.png "EitherPath vs ValidationPath")
+![mfj-effect-polymorphic-2.png]({{site.baseurl}}/magnussmith/assets/optics/mfj-effect-polymorphic-2.png "EitherPath vs ValidationPath")
 
 ```java
+// Define a semigroup constant to avoid repetition
+private static final Semigroup<List<String>> ERRORS = Semigroups.list();
+
 // Create validators that return ValidationPath
 ValidationPath<List<String>, String> validateName(String name) {
     if (name == null || name.isBlank()) {
-        return Path.invalid(List.of("Name is required"), Semigroups.list());
+        return Path.invalid(List.of("Name is required"), ERRORS);
     }
-    return Path.valid(name.trim(), Semigroups.list());
+    return Path.valid(name.trim(), ERRORS);
 }
 
 ValidationPath<List<String>, Integer> validateAge(int age) {
     if (age < 0) {
-        return Path.invalid(List.of("Age cannot be negative"), Semigroups.list());
+        return Path.invalid(List.of("Age cannot be negative"), ERRORS);
     }
     if (age > 150) {
-        return Path.invalid(List.of("Age seems unrealistic"), Semigroups.list());
+        return Path.invalid(List.of("Age seems unrealistic"), ERRORS);
     }
-    return Path.valid(age, Semigroups.list());
+    return Path.valid(age, ERRORS);
 }
 
 ValidationPath<List<String>, String> validateEmail(String email) {
     if (!email.contains("@")) {
-        return Path.invalid(List.of("Invalid email format"), Semigroups.list());
+        return Path.invalid(List.of("Invalid email format"), ERRORS);
     }
-    return Path.valid(email, Semigroups.list());
+    return Path.valid(email, ERRORS);
 }
 ```
+
+Each validator returns a single error wrapped in a `List` because `ValidationPath` needs a `Semigroup` to combine errors from multiple validations. When two validations both fail, their `List<String>` errors are concatenated.
+
 
 ### Combining Validations: Short-Circuit vs Accumulating
 
@@ -265,22 +268,26 @@ ValidationPath<List<String>, User> sequential = validateName(name)
 **Accumulating** (via `zipWithAccum`): Collects all errors
 
 ```java
-// Parallel: all validations run, errors accumulate
+// All validations run independently, errors accumulate
 ValidationPath<List<String>, User> accumulated = validateName(name)
-    .zipWithAccum(validateAge(age), (n, a) -> new Pair<>(n, a))
-    .zipWithAccum(validateEmail(email), (pair, e) -> new User(pair.first(), pair.second(), e));
+                .zipWith3Accum(
+                        validateAge(age),
+                        validateEmail(email),
+                        (n, a, e) -> new User(n, a, e)
+                );
 ```
 
-For multiple validations, use `zipWith3Accum`:
+For two validations, use `zipWithAccum`:
 
 ```java
-ValidationPath<List<String>, User> user = validateName(name)
-    .zipWith3Accum(
-        validateAge(age),
-        validateEmail(email),
-        (n, a, e) -> new User(n, a, e)
-    );
+// Two-field example
+record Contact(String name, String email) {}
+
+ValidationPath<List<String>, Contact> contact = validateName(name)
+    .zipWithAccum(validateEmail(email), Contact::new);
 ```
+
+For three, use `zipWith3Accum` as shown above.
 
 ### The Semigroup Requirement
 
@@ -339,7 +346,7 @@ TryPath<Integer> withFallback = Path.tryOf(() -> fetchFromPrimary())
 
 ```java
 // Define computations without executing them
-IOPath<String> readConfig = Path.io(() -> Files.readString(Path.of("config.json")));
+IOPath<String> readConfig = Path.io(() -> Files.readString(configPath));
 IOPath<Unit> writeLog = Path.ioRunnable(() -> logger.info("Operation complete"));
 
 // Compose deferred computations
@@ -410,6 +417,8 @@ VTaskPath<Unit> logAction = Path.vtaskExec(() -> logger.info("Starting..."));
 
 Unlike `IOPath`, which runs on the caller's thread, `VTaskPath` executes on virtual threads managed by the JVM. Virtual threads consume mere kilobytes of memory (versus megabytes for platform threads), enabling millions of concurrent tasks.
 
+![mfj-effect-polymorphic-3.png]({{site.baseurl}}/magnussmith/assets/optics/mfj-effect-polymorphic-3.png "VTask Execution Model")
+
 ```java
 VTaskPath<Integer> task = Path.vtask(() -> expensiveComputation());
 
@@ -458,7 +467,9 @@ VTask<String> fastest = Par.race(List.of(
 
 ### Structured Concurrency with Scope
 
-For more control over concurrent operations, use `Scope`:
+For more control over concurrent operations, use `Scope`. The three joiners determine how concurrent results are combined:
+
+![mfj-effect-polymorphic-4.png]({{site.baseurl}}/magnussmith/assets/optics/mfj-effect-polymorphic-4.png "Scope Joiners")
 
 ```java
 import org.higherkindedj.hkt.vtask.Scope;
@@ -489,9 +500,13 @@ VTask<Validated<List<Error>, List<String>>> validated =
 ### Error Handling
 
 ```java
-VTaskPath<Config> config = Path.vtask(() -> loadConfig())
-    .handleError(ex -> Config.defaults())           // Replace error with value
-    .handleErrorWith(ex -> Path.vtask(() -> loadFallback()));  // Try another task
+// Replace error with a default value
+VTaskPath<Config> withDefault = Path.vtask(() -> loadConfig())
+                .handleError(ex -> Config.defaults());
+
+// Or try a fallback task instead
+VTaskPath<Config> withFallback = Path.vtask(() -> loadConfig())
+        .handleErrorWith(ex -> Path.vtask(() -> loadFallbackConfig()));
 ```
 
 ### Timeouts
@@ -517,6 +532,9 @@ Choose `VTaskPath` when you need lightweight concurrency at scale. Choose `IOPat
 ## Bridging Focus Paths and Effect Paths
 
 The [Focus DSL](https://higher-kinded-j.github.io/latest/optics/ch4_intro.html) (FocusPath, AffinePath, TraversalPath) integrates seamlessly with Effect Paths. This bridge is where navigation meets computation. For a complete reference of all bridge methods, see the [Focus-Effect Integration Guide](https://higher-kinded-j.github.io/latest/effect/focus_integration.html).
+
+![mfj-effect-polymorphic-5.png]({{site.baseurl}}/magnussmith/assets/optics/mfj-effect-polymorphic-5.png "Focus Path → Effect Path Bridge")
+
 
 ### From Focus Paths to Effect Paths
 
@@ -806,9 +824,8 @@ Higher-Kinded-J provides two levels of abstraction:
 
 ```java
 // Clear, fluent, discoverable
-ValidationPath<List<Error>, User> validated = Path.valid(user, Semigroups.list())
-    .via(u -> validateName(u.name()))
-    .zipWithAccum(validateAge(user.age()), (u, age) -> u);
+ValidationPath<List<String>, User> validated = validateName(name)
+                .zipWith3Accum(validateAge(age), validateEmail(email), User::new);
 ```
 
 ### Low-Level: modifyF with Applicative
@@ -829,7 +846,7 @@ Start with the Effect Path API. Drop to `modifyF` when you need its power.
 
 ## Summary
 
-This article introduced the Effect Path API for effectful programming:
+We introduced the Effect Path API for effectful programming:
 
 1. **Effect Path types**: `MaybePath`, `EitherPath`, `TryPath`, `ValidationPath`, `IOPath`, `VTaskPath`
 2. **Railway model**: Values travel success/failure tracks with explicit error handling
@@ -839,19 +856,6 @@ This article introduced the Effect Path API for effectful programming:
 6. **Type checking example**: Comprehensive error reporting with ValidationPath
 
 The Effect Path API makes effect polymorphism practical. The same patterns that work for optional values work for error handling, validation, and deferred execution. Choose the right Effect Path type for your use case, and let composition do the rest.
-
----
-
-## What's Next
-
-We've built a substantial expression language: AST definition, optics generation, tree traversals, optimisation passes, type checking, and the Effect Path API for error accumulation.
-
-In Part 6, we'll step back and reflect on what we've built:
-
-- **The complete pipeline**: From source text through parsing, type checking, optimisation, and evaluation
-- **Design patterns**: Common patterns for effect-polymorphic code
-- **Performance considerations**: When to use optics and when simpler approaches suffice
-- **Real-world applications**: Applying these techniques beyond expression languages
 
 ---
 
@@ -869,11 +873,11 @@ In Part 6, we'll step back and reflect on what we've built:
 
 ### Higher-Kinded Types and Functional Abstractions
 
-- **["Algebraic Data Types with Java"](https://blog.scottlogic.com/2025/01/20/algebraic-data-types-with-java.html)** (Scott Logic, 2025): A thorough introduction to algebraic data types using Java's sealed interfaces and records. Covers how sum types and product types compose to model complex domains.
+- **[Algebraic Data Types with Java](https://blog.scottlogic.com/2025/01/20/algebraic-data-types-with-java.html)** (Scott Logic, 2025): A thorough introduction to algebraic data types using Java's sealed interfaces and records. Covers how sum types and product types compose to model complex domains.
 
-- **["Functors and Monads with Java and Scala"](https://blog.scottlogic.com/2025/03/31/functors-monads-with-java-and-scala.html)** (Scott Logic, 2025): A practical comparison of how Functor and Monad abstractions are implemented in Java vs Scala, directly relevant to understanding the Effect Path API's foundation.
+- **[Functors and Monads with Java and Scala](https://blog.scottlogic.com/2025/03/31/functors-monads-with-java-and-scala.html)** (Scott Logic, 2025): A practical comparison of how Functor and Monad abstractions are implemented in Java vs Scala, directly relevant to understanding the Effect Path API's foundation.
 
-- **["Higher-Kinded Types with Java and Scala"](https://blog.scottlogic.com/2025/04/11/higher-kinded-types-with-java-and-scala.html)** (Scott Logic, 2025): Explores how higher-kinded types work and how Java can simulate them, providing context for understanding the `Kind<F, A>` pattern used throughout Higher-Kinded-J.
+- **[Higher-Kinded Types with Java and Scala](https://blog.scottlogic.com/2025/04/11/higher-kinded-types-with-java-and-scala.html)** (Scott Logic, 2025): Explores how higher-kinded types work and how Java can simulate them, providing context for understanding the `Kind<F, A>` pattern used throughout Higher-Kinded-J.
 
 
 ### Higher-Kinded-J
@@ -894,4 +898,15 @@ In Part 6, we'll step back and reflect on what we've built:
 
 ---
 
-*Next: [Article 6: Retrospective and Real-World Applications](article-6-retrospective.md)*
+### Next time
+
+We've now built a substantial expression language: AST definition, optics generation, tree traversals, optimisation passes, type checking, and the Effect Path API for error accumulation.
+
+In the final Part 6, we'll step back and reflect on what we've built:
+
+- **The complete pipeline**: From source text through parsing, type checking, optimisation, and evaluation
+- **Design patterns**: Emergent patterns for effect-polymorphic code that work well
+- **Performance considerations**: When to use optics and when simpler approaches suffice
+- **Real-world applications**: Applying these techniques beyond expression languages
+
+---
