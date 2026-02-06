@@ -667,7 +667,7 @@ public final class ExprTypeChecker {
                 }
                 yield Path.invalid(List.of(new TypeError(
                     "Arithmetic operator '%s' requires INT operands, got %s and %s"
-                        .formatted(op, left, right)
+                        .formatted((op.symbol(), left, right)
                 )), ERRORS);
             }
             case AND, OR -> {
@@ -676,17 +676,25 @@ public final class ExprTypeChecker {
                 }
                 yield Path.invalid(List.of(new TypeError(
                     "Logical operator '%s' requires BOOL operands, got %s and %s"
-                        .formatted(op, left, right)
+                        .formatted(op.symbol(), left, right)
                 )), ERRORS);
             }
-            case EQ, NE -> Path.valid(Type.BOOL, ERRORS);
+            case EQ, NE -> {
+                if (left == right) {
+                    yield Path.valid(Type.BOOL, ERRORS);
+                }
+                yield Path.invalid(List.of(new TypeError(
+                        "Equality operator '%s' requires matching types, got %s and %s"
+                                .formatted(op.symbol(), left, right)
+                )), ERRORS);
+            }
             case LT, LE, GT, GE -> {
                 if (left == Type.INT && right == Type.INT) {
                     yield Path.valid(Type.BOOL, ERRORS);
                 }
                 yield Path.invalid(List.of(new TypeError(
                     "Comparison operator '%s' requires INT operands, got %s and %s"
-                        .formatted(op, left, right)
+                        .formatted(op.symbol(), left, right)
                 )), ERRORS);
             }
         };
@@ -694,21 +702,17 @@ public final class ExprTypeChecker {
 
     private static ValidationPath<List<TypeError>, Type> checkConditionalTypes(
             Type cond, Type then_, Type else_) {
-        List<TypeError> errors = new ArrayList<>();
+        var condCheck = (cond == Type.BOOL)
+                ? Path.valid(cond, ERRORS)
+                : Path.invalid(List.of(new TypeError("Condition must be BOOL, got " + cond)), ERRORS);
 
-        if (cond != Type.BOOL) {
-            errors.add(new TypeError("Condition must be BOOL, got " + cond));
-        }
-        if (then_ != else_) {
-            errors.add(new TypeError(
-                "Branches must have same type, got %s and %s".formatted(then_, else_)
-            ));
-        }
+        var branchCheck = (then_ == else_)
+                ? Path.valid(then_, ERRORS)
+                : Path.invalid(List.of(new TypeError(
+                "Branches must have same type, got %s and %s".formatted(then_, else_))), ERRORS);
 
-        if (errors.isEmpty()) {
-            return Path.valid(then_, ERRORS);
-        }
-        return Path.invalid(errors, ERRORS);
+        // Accumulate errors from both checks using the applicative nature of ValidationPath
+        return condCheck.zipWithAccum(branchCheck, (c, t) -> t);
     }
 }
 ```
@@ -739,8 +743,8 @@ result.run().fold(
 Output:
 ```
 Type errors:
-  - Arithmetic operator 'ADD' requires INT operands, got INT and BOOL
-  - Logical operator 'AND' requires BOOL operands, got BOOL and INT
+  - Arithmetic operator '+' requires INT operands, got INT and BOOL
+  - Logical operator '&&' requires BOOL operands, got BOOL and INT
 ```
 
 Both errors are reported in a single pass. The user can fix them both at once.
