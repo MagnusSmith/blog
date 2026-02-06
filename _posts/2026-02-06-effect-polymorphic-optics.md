@@ -741,7 +741,8 @@ result.run().fold(
 ~~~~
 
 Output:
-~~~~
+
+~~~~ bash
 Type errors:
   - Arithmetic operator '+' requires INT operands, got INT and BOOL
   - Logical operator '&&' requires BOOL operands, got BOOL and INT
